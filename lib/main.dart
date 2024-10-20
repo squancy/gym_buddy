@@ -12,6 +12,7 @@ class GymBuddyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Gym Buddy App',
       theme: ThemeData(
         fontFamily: 'Rethink Sans',
