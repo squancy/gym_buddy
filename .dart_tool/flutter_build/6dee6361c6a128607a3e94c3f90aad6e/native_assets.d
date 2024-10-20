@@ -1,1 +1,0 @@
- C:\\Users\\Erik.ERIKVIVOBOOK\\Documents\\gym-buddy\\.dart_tool\\flutter_build\\6dee6361c6a128607a3e94c3f90aad6e\\native_assets.yaml: 
