@@ -170,7 +170,11 @@
       "languageVersion": "3.5"
     }
   ],
+<<<<<<< HEAD
   "generated": "2024-10-20T14:11:03.826175Z",
+=======
+  "generated": "2024-10-20T20:35:51.135417Z",
+>>>>>>> erik-workspace
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/mrk/flutter_dart_dev/flutter",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'login_page.dart';
 
 void main() {
   runApp(const GymBuddyApp());
@@ -71,9 +72,22 @@ class HomePage extends StatelessWidget {
           children: [
             const Text(_appTitle, style: TextStyle(fontSize: 42)),
             const SizedBox(height: 60),
-            BigRedButton(displayText: _logInButtonTitle, onPressedFunc: () {}, fontSize: 22),
+            BigRedButton(
+              displayText: _logInButtonTitle,
+              onPressedFunc: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+              fontSize: 22,
+            ),
             const SizedBox(height: 30),
-            BigRedButton(displayText: _signUpButtonTitle, onPressedFunc: () {}, fontSize: 22),
+            BigRedButton(
+              displayText: _signUpButtonTitle,
+              onPressedFunc: () {},
+              fontSize: 22,
+            ),
           ],
         ),
       ),
