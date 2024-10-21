@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
+import 'consts/common_consts.dart';
+import 'forgot_password.dart';
 
 void main() {
   runApp(const GymBuddyApp());
@@ -44,7 +46,7 @@ class BigRedButton extends StatelessWidget {
       onPressed: onPressedFunc,
       style: ButtonStyle(
         padding: WidgetStateProperty.all<EdgeInsets>(
-          const EdgeInsets.fromLTRB(40, 20, 40, 20)
+          const EdgeInsets.fromLTRB(30, 10, 30, 10)
         )
       ),
       child: Text(
@@ -59,9 +61,6 @@ class BigRedButton extends StatelessWidget {
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-  static const String _appTitle = 'Gym Buddy App';
-  static const String _logInButtonTitle = 'Log in';
-  static const String _signUpButtonTitle = 'Sign up';
 
   @override
   Widget build(BuildContext context) {
@@ -71,29 +70,43 @@ class HomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(_appTitle, style: TextStyle(fontSize: 42)),
+            const Text(HomeConsts.appTitle, style: TextStyle(fontSize: 42)),
             const SizedBox(height: 60),
             BigRedButton(
-              displayText: _logInButtonTitle,
+              displayText: HomeConsts.loginButtonTitle,
               onPressedFunc: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
-              fontSize: 22,
+              fontSize: 18,
             ),
             const SizedBox(height: 30),
             BigRedButton(
-              displayText: _signUpButtonTitle,
+              displayText: HomeConsts.signupButtonTitle,
               onPressedFunc: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignupPage()),
                 );
               },
-              fontSize: 22,
+              fontSize: 18,
             ),
+            const SizedBox(height: 30),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                );
+              }, child: Text(
+                'Forgot password',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary
+                )
+              )
+            )
           ],
         ),
       ),

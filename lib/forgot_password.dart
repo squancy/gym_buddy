@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
 
-  void _login() {
+  void _sendPassword() {
     final String email = _emailController.text;
-    final String password = _passwordController.text;
-
-    print('Email: $email, Password: $password');
   }
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -33,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(LoginConsts.appBarText),
+        title: const Text(ForgotPasswordConsts.appBarText),
       ),
       body: Center(
         child: Padding(
@@ -42,29 +35,29 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                LoginConsts.mainScreenText,
+                ForgotPasswordConsts.mainScreenText,
                 style: TextStyle(
-                  fontSize: 42,
+                  fontSize: 28,
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 30,),
+              Text(
+                ForgotPasswordConsts.infoText,
+                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)
+              ),
+              const SizedBox(height: 30,),
               TextField(
                 controller: _emailController,
                 focusNode: _emailFocusNode,
                 decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
               ),
-              TextField(
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-              ),
               const SizedBox(height: 20),
               FilledButton(
-                onPressed: _login,
-                child: const Text(LoginConsts.appBarText),
+                onPressed: _sendPassword,
+                child: const Text(ForgotPasswordConsts.redBtnText),
               ),
             ],
           ),
