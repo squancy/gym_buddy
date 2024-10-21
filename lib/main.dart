@@ -92,21 +92,7 @@ class HomePage extends StatelessWidget {
                 );
               },
               fontSize: 18,
-            ),
-            const SizedBox(height: 30),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
-                );
-              }, child: Text(
-                'Forgot password',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary
-                )
-              )
-            )
+            ) 
           ],
         ),
       ),

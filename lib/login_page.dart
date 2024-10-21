@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
+import 'forgot_password.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -64,8 +65,21 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: _login,
-                child: const Text(LoginConsts.appBarText),
-              ),
+                child: const Text(LoginConsts.appBarText)),
+              const SizedBox(height: 30),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                  );
+                }, child: Text(
+                  'Forgot password',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary
+                  )
+                )
+              )
             ],
           ),
         ),
