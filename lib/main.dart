@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'login_page.dart';
+import 'signup_page.dart';
 
 void main() {
   runApp(const GymBuddyApp());
@@ -59,8 +60,8 @@ class BigRedButton extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   static const String _appTitle = 'Gym Buddy App';
-  static const String _logInButtonTitle = 'Log In';
-  static const String _signUpButtonTitle = 'Sign Up';
+  static const String _logInButtonTitle = 'Log in';
+  static const String _signUpButtonTitle = 'Sign up';
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,7 @@ class HomePage extends StatelessWidget {
               onPressedFunc: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
               fontSize: 22,
@@ -85,7 +86,12 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 30),
             BigRedButton(
               displayText: _signUpButtonTitle,
-              onPressedFunc: () {},
+              onPressedFunc: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignupPage()),
+                );
+              },
               fontSize: 22,
             ),
           ],
