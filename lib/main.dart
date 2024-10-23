@@ -3,9 +3,16 @@ import 'theme.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
 import 'consts/common_consts.dart';
-import 'forgot_password.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const GymBuddyApp());
 }
 

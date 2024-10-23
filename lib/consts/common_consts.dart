@@ -24,3 +24,8 @@ class ForgotPasswordConsts {
   static const String infoText = 'If you forgot your password we will send you a temporary password to your email. You can change it later in your profile.';
   static const String redBtnText = 'Send password';
 }
+
+// Signup page validation [validate_signup.dart]
+class ValidateSignupConsts {
+  static const int MAX_USERNAME_LEN = 100;
+}

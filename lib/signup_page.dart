@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
+import 'validate/validate_signup.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -17,13 +18,25 @@ class _SignupPageState extends State<SignupPage> {
   final FocusNode _passwordConfFocusNode = FocusNode();
   final FocusNode _usernameFocusNode = FocusNode();
 
-  void _signup() {
-    final String email = _emailController.text;
-    final String password = _passwordController.text;
-    final String passwordConf = _passwordConfController.text;
-    final String username = _usernameController.text;
+  final ValueNotifier<String> _signupStatus = ValueNotifier<String>("");
 
-    print('Email: $email, Password: $password');
+  void _signup() async {
+    final String _email = _emailController.text;
+    final String _password = _passwordController.text;
+    final String _passwordConf = _passwordConfController.text;
+    final String _username = _usernameController.text;
+
+    // Validate data for signup
+    final signupValidator = ValidateSignup(_username, _email, _password, _passwordConf);
+    final (bool isValid, String errorMsg) = signupValidator.isValidParams();
+    if (!isValid) {
+      _signupStatus.value = errorMsg;
+    }
+    
+    final (bool isValid_, String errorMsg_) = await signupValidator.userExists();
+    if (!isValid_) {
+      _signupStatus.value = errorMsg_;
+    }
   }
 
   @override
@@ -60,6 +73,7 @@ class _SignupPageState extends State<SignupPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 20,),
               TextField(
                 controller: _usernameController,
                 focusNode: _usernameFocusNode,
@@ -87,6 +101,13 @@ class _SignupPageState extends State<SignupPage> {
               FilledButton(
                 onPressed: _signup,
                 child: const Text(SignupConsts.appBarText),
+              ),
+              SizedBox(height: 20,),
+              ValueListenableBuilder<String>(
+                valueListenable: _signupStatus,
+                builder: (BuildContext context, String value, Widget? child) {
+                  return Text(value, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
+                }
               ),
             ],
           ),
