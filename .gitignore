@@ -152,3 +152,4 @@ app.*.symbols
 firebase.json
 firepit-log.txt
 lib/firebase_options.dart
+lib/*.code-workspace
