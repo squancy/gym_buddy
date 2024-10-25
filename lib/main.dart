@@ -8,10 +8,12 @@ import 'firebase_options.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
+  // Firebase init START
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // Firebase init END
 
   runApp(const GymBuddyApp());
 }
@@ -44,8 +46,8 @@ class BigRedButton extends StatelessWidget {
   });
 
   final String displayText;
-  final VoidCallback? onPressedFunc;
-  final double? fontSize;
+  final VoidCallback onPressedFunc;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 import 'forgot_password.dart';
+import 'handlers/handle_login.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,11 +15,21 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
-  void _login() {
+  final ValueNotifier<String> _loginStatus = ValueNotifier<String>("");
+
+  void _login() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
 
-    print('Email: $email, Password: $password');
+    final loginValidator = CheckLogin(email, password);
+    final (bool isValid, String errorMsg) = await loginValidator.validateLogin();
+    if (!isValid) {
+      _loginStatus.value = errorMsg;
+      return;
+    }
+
+    // Successful login
+    print('success');
   }
 
   @override
@@ -79,7 +90,13 @@ class _LoginPageState extends State<LoginPage> {
                     color: Theme.of(context).colorScheme.onPrimary
                   )
                 )
-              )
+              ),
+              ValueListenableBuilder<String>(
+                valueListenable: _loginStatus,
+                builder: (BuildContext context, String value, Widget? child) {
+                  return Text(value, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
+                }
+              ),
             ],
           ),
         ),

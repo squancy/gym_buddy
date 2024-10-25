@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
-import 'validate/validate_signup.dart';
+import 'handlers/handle_signup.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -21,22 +21,34 @@ class _SignupPageState extends State<SignupPage> {
   final ValueNotifier<String> _signupStatus = ValueNotifier<String>("");
 
   void _signup() async {
-    final String _email = _emailController.text;
-    final String _password = _passwordController.text;
-    final String _passwordConf = _passwordConfController.text;
-    final String _username = _usernameController.text;
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+    final String passwordConf = _passwordConfController.text;
+    final String username = _usernameController.text;
 
     // Validate data for signup
-    final signupValidator = ValidateSignup(_username, _email, _password, _passwordConf);
-    final (bool isValid, String errorMsg) = signupValidator.isValidParams();
+    final signupValidator = ValidateSignup(username, email, password, passwordConf);
+    var (bool isValid, String errorMsg) = signupValidator.isValidParams();
     if (!isValid) {
       _signupStatus.value = errorMsg;
+      return;
     }
     
-    final (bool isValid_, String errorMsg_) = await signupValidator.userExists();
-    if (!isValid_) {
-      _signupStatus.value = errorMsg_;
+    (isValid, errorMsg) = await signupValidator.userExists();
+    if (!isValid) {
+      _signupStatus.value = errorMsg;
+      return;
     }
+
+    // At this point the validation was successful
+    final signupInsert = InsertSignup(email, password, username);
+    (isValid, errorMsg) = await signupInsert.insertToDB();
+    if (!isValid) {
+      _signupStatus.value = errorMsg;
+      return;
+    }
+
+    // TODO: send email to user about successful signup (when we have a domain name)
   }
 
   @override
