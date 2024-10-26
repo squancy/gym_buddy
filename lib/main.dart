@@ -82,7 +82,7 @@ class WelcomePage extends StatelessWidget {
     return FutureBuilder(
       future: _loggedIn(),
       builder: (context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data) {
           return HomePage();
         } else {
           return Scaffold(
