@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 import 'handlers/handle_signup.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -19,24 +20,33 @@ class _SignupPageState extends State<SignupPage> {
   final FocusNode _usernameFocusNode = FocusNode();
 
   final ValueNotifier<String> _signupStatus = ValueNotifier<String>("");
+  bool _showSpinner = false;
+
+  final spinkit = SpinKitFadingCircle(color: Colors.white, size: 25);
 
   void _signup() async {
-    final String email = _emailController.text;
+    final String email = _emailController.text.trim();
     final String password = _passwordController.text;
     final String passwordConf = _passwordConfController.text;
-    final String username = _usernameController.text;
+    final String username = _usernameController.text.trim();
+
+    _signupStatus.value = '';
+
+    setState(() { _showSpinner = true; });
 
     // Validate data for signup
     final signupValidator = ValidateSignup(username, email, password, passwordConf);
     var (bool isValid, String errorMsg) = signupValidator.isValidParams();
     if (!isValid) {
       _signupStatus.value = errorMsg;
+      setState(() { _showSpinner = false; });
       return;
     }
     
     (isValid, errorMsg) = await signupValidator.userExists();
     if (!isValid) {
       _signupStatus.value = errorMsg;
+      setState(() { _showSpinner = false; });
       return;
     }
 
@@ -45,8 +55,11 @@ class _SignupPageState extends State<SignupPage> {
     (isValid, errorMsg) = await signupInsert.insertToDB();
     if (!isValid) {
       _signupStatus.value = errorMsg;
+      setState(() { _showSpinner = false; });
       return;
     }
+
+    setState(() { _showSpinner = false; });
 
     // TODO: send email to user about successful signup (when we have a domain name)
   }
@@ -121,6 +134,8 @@ class _SignupPageState extends State<SignupPage> {
                   return Text(value, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
                 }
               ),
+              SizedBox(height: 20,),
+              Builder(builder: (context) => _showSpinner ? spinkit : Container()),
             ],
           ),
         ),

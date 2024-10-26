@@ -5,7 +5,7 @@ class GlobalThemeData {
     brightness: Brightness.dark,
     primary: Color(0xfff40006),
     onPrimary: Colors.white,
-    secondary: Color(0xffba0000),
+    secondary: Color.fromARGB(255, 117, 117, 117),
     onSecondary: Colors.white,
     error: Color(0xfff40006),
     onError: Colors.white,

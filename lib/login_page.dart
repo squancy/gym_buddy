@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 import 'forgot_password.dart';
 import 'handlers/handle_login.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,19 +20,39 @@ class _LoginPageState extends State<LoginPage> {
 
   final ValueNotifier<String> _loginStatus = ValueNotifier<String>("");
 
+  bool _showSpinner = false;
+  final spinkit = SpinKitFadingCircle(color: Colors.white, size: 25);
+
   void _login() async {
-    final String email = _emailController.text;
-    final String password = _passwordController.text;
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    setState(() { _showSpinner = true; });
+    _loginStatus.value = '';
 
     final loginValidator = CheckLogin(email, password);
     final (bool isValid, String errorMsg) = await loginValidator.validateLogin();
     if (!isValid) {
       _loginStatus.value = errorMsg;
+      setState(() { _showSpinner = false; });
       return;
     }
 
+  final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    await prefs.setBool('loggedIn', true);
+
     // Successful login
-    print('success');
+    setState(() {
+      _showSpinner = false;
+      setState(() {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => HomePage()
+          )
+        );
+      });
+    });
   }
 
   @override
@@ -97,6 +120,8 @@ class _LoginPageState extends State<LoginPage> {
                   return Text(value, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
                 }
               ),
+              SizedBox(height: 20,),
+              Builder(builder: (context) => _showSpinner ? spinkit : Container()),
             ],
           ),
         ),
