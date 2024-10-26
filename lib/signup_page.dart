@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 import 'handlers/handle_signup.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -52,16 +54,30 @@ class _SignupPageState extends State<SignupPage> {
 
     // At this point the validation was successful
     final signupInsert = InsertSignup(email, password, username);
-    (isValid, errorMsg) = await signupInsert.insertToDB();
+    var userID;
+    (isValid, errorMsg, userID) = await signupInsert.insertToDB();
     if (!isValid) {
       _signupStatus.value = errorMsg;
       setState(() { _showSpinner = false; });
       return;
     }
 
-    setState(() { _showSpinner = false; });
-
     // TODO: send email to user about successful signup (when we have a domain name)
+
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    await prefs.setBool('loggedIn', true);
+    await prefs.setString('userID', userID);
+
+    // Redirect user to main page
+    setState(() {
+      _showSpinner = false;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => HomePage()
+        )
+      );
+    });
   }
 
   @override

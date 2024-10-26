@@ -29,7 +29,7 @@ class GymBuddyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Gym Buddy App',
       theme: ThemeData(
-        fontFamily: 'Rethink Sans',
+        // fontFamily: 'Rethink Sans',
         useMaterial3: true,
         colorScheme: gymBuddyColorScheme
       ),

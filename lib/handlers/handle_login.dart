@@ -19,18 +19,18 @@ class CheckLogin {
     return await FlutterBcrypt.verify(password: _password, hash: passwordDB);
   }
 
-  Future<(bool success, String errorMsg)> validateLogin() async {
+  Future<(bool success, String errorMsg, String userID)> validateLogin() async {
     // Fetch user with the given email, if exists
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final users = db.collection('users');
 
     final QuerySnapshot userWithEmail = await _getUserWithEmail(users); 
     if (userWithEmail.docs.isEmpty) {
-      return (false, 'Your email or password is incorrect');
+      return (false, 'Your email or password is incorrect', '');
     }
 
     var user = userWithEmail.docs[0].data() as Map<String, dynamic>;
     bool valid = await _isPasswordValid(user);
-    return valid ? (true, '') : (false, 'Your email or password is incorrect');
+    return valid ? (true, '', user['id'] as String) : (false, 'Your email or password is incorrect', '');
   }
 }

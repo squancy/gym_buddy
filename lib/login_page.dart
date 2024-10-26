@@ -31,27 +31,26 @@ class _LoginPageState extends State<LoginPage> {
     _loginStatus.value = '';
 
     final loginValidator = CheckLogin(email, password);
-    final (bool isValid, String errorMsg) = await loginValidator.validateLogin();
+    final (bool isValid, String errorMsg, String userID) = await loginValidator.validateLogin();
     if (!isValid) {
       _loginStatus.value = errorMsg;
       setState(() { _showSpinner = false; });
       return;
     }
 
-  final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
     await prefs.setBool('loggedIn', true);
+    await prefs.setString('userID', userID);
 
     // Successful login
     setState(() {
       _showSpinner = false;
-      setState(() {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => HomePage()
-          )
-        );
-      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => HomePage()
+        )
+      );
     });
   }
 

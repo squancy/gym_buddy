@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io' show Platform;
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
+import 'package:uuid/uuid.dart';
 
 /*
   Validates parameters used during the sign up process
@@ -113,16 +114,20 @@ class InsertSignup {
     return (salt, pwh);
   }
 
-  Future<(bool success, String errorMsg)> insertToDB() async {
+  Future<(bool success, String errorMsg, String userID)> insertToDB() async {
     // Insert user into db
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final users = db.collection('users');
+    final userSettings = db.collection('user_settings');
 
     final (String salt, String pwh) = await _hashPassword();
     final String platform = _getPlatform();
     final Position? geoloc = await _getGeolocation();
 
+    var uuid = Uuid();
+    String userID = uuid.v4();
     final data = {
+      'id': userID,
       'username': _username,
       'email': _email,
       'password': pwh,
@@ -132,14 +137,21 @@ class InsertSignup {
       'signup_date': FieldValue.serverTimestamp()
     };
 
+    final dataProfile = {
+      'display_username': _username,
+      'bio': '',
+      'profile_pic_path': ''
+    };
+
     // Insert user into db
     try {
-      await users.doc(_username).set(data);
+      await users.doc(userID).set(data);
+      await userSettings.doc(userID).set(dataProfile);
     } catch (e) {
-      return (false, 'An unknown error occurred');
+      return (false, 'An unknown error occurred', '');
     }
 
     // Successful signup
-    return (true, '');
+    return (true, '', userID);
   }
 }
