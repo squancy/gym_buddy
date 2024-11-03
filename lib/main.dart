@@ -84,6 +84,12 @@ class WelcomePage extends StatelessWidget {
       builder: (context, AsyncSnapshot snapshot) {
         if (snapshot.hasData && snapshot.data) {
           return HomePage();
+        } else if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: GlobalConsts.spinkit
+            )
+          );
         } else {
           return Scaffold(
             body: Center(

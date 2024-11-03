@@ -1,3 +1,6 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter/material.dart';
+
 // Login page [login_page.dart]
 class LoginConsts {
   static const String appBarText = 'Log in';
@@ -28,4 +31,13 @@ class ForgotPasswordConsts {
 // Signup page validation [validate_signup.dart]
 class ValidateSignupConsts {
   static const int MAX_USERNAME_LEN = 100;
+}
+
+// Profile page [profile_page.dart]
+class ProfileConsts {
+  static const int MAX_BIO_LEN = 200;
+}
+
+class GlobalConsts {
+  static const spinkit = SpinKitFadingCircle(color: Colors.white, size: 25);
 }

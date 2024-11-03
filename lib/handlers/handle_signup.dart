@@ -23,6 +23,7 @@ class ValidateSignup {
   final String _password;
   final String _passwordConf;
 
+  // TODO: check if username only contains alphanumeric characters and _
   (bool isValid, String errorMsg) isValidParams() {
     if (_username.isEmpty || _email.isEmpty || _password.isEmpty || _passwordConf.isEmpty) {
       return (false, 'Please fill all fields');

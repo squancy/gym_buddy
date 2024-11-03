@@ -35,7 +35,6 @@ class _HomePageContentState extends State<HomePageContent> {
               }
             ),
           ),
-          Text('TODO: finish home page')
         ],
       ),
     );
@@ -55,7 +54,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: [HomePageContent(), ProfilePage()][_selectedIndex]
+        child: [HomePageContent(), Container(), ProfilePage()][_selectedIndex]
       ),
       bottomNavigationBar: BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
@@ -64,9 +63,12 @@ class _HomePageState extends State<HomePage> {
           label: 'Home'
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          label: 'Find a buddy'
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.person),
-          label: 'Profile',
-          
+          label: 'Profile', 
         ),
       ],
       currentIndex: _selectedIndex,
