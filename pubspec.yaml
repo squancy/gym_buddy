@@ -48,6 +48,10 @@ dependencies:
   firebase_storage: ^12.3.4
   path: ^1.9.0
   image: ^4.3.0
+  transparent_image: ^2.0.1
+  animated_custom_dropdown: ^3.1.1
+  moye: ^3.2.0
+  image_fade: ^0.6.2
 
 dev_dependencies:
   flutter_test:

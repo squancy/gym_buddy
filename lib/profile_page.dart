@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:uuid/uuid.dart';
 import 'consts/common_consts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as p;
-import 'package:image/image.dart' as img;
+import 'package:transparent_image/transparent_image.dart';
+import 'utils/photo_upload_popup.dart';
+import 'utils/upload_image_firestorage.dart';
+import 'utils/helpers.dart' as helpers;
+import 'package:shared_preferences/shared_preferences.dart';
+
+final FirebaseFirestore db = FirebaseFirestore.instance;
+final storageRef = FirebaseStorage.instance.ref();
+
+/*
+
+*/
+final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+final x = prefs.setBool('loggedIn', false);
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -30,11 +38,6 @@ class Toggle {
   }
 }
 
-Future<String?> getUserID() async {
-  final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-  return prefs.getString('userID');
-}
-
 class ProfilePhoto extends StatefulWidget {
   const ProfilePhoto({super.key});
 
@@ -42,106 +45,118 @@ class ProfilePhoto extends StatefulWidget {
   State<ProfilePhoto> createState() => _ProfilePhotoState();
 }
 
-class _ProfilePhotoState extends State<ProfilePhoto> {
-  var _image = File('assets/default_profile_pic.png');
-  final picker = ImagePicker();
-  bool showAsset = true;
+class ProfilePicPlaceholder extends StatelessWidget {
+  const ProfilePicPlaceholder({super.key});
 
-  void getImageFromGallery() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    final userID = await getUserID();
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 40,
+      backgroundColor: Color.fromARGB(255, 14, 22, 29),
+    );
+  }
+}
+
+class _ProfilePhotoState extends State<ProfilePhoto> {
+  var _image = File(ProfileConsts.defaultProfilePicPath);
+  final _picker = ImagePicker();
+  bool _showFile = false;
+
+  Future<void> _uploadPic(File file, String? userID) async {
+    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, 100, "profile_pics/$userID");
+    final settingsDocRef = db.collection('user_settings').doc(userID);
+    try {
+      await settingsDocRef.update({
+        'profile_pic_path': filename,
+        'profile_pic_url': downloadURL
+      });
+    } catch (e) {
+      // ...
+    }
+  }
+
+  void _selectFromSource(ImageSource sourceType) async {
+    final pickedFile = await _picker.pickImage(source: sourceType);
+    final userID = await helpers.getUserID();
     if (pickedFile != null) {
-      uploadPic(File(pickedFile.path), userID);
+      _uploadPic(File(pickedFile.path), userID);
     }
 
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
-        showAsset = false;
+        _showFile = true;
       }
     });
   }
 
-  void uploadPic(File file, String? userID) async {
-    final extension = p.extension(file.path);
-    final metadata = SettableMetadata(contentType: "image/${extension.substring(1)}");
-    final storageRef = FirebaseStorage.instance.ref();
-    final uuid = Uuid();
-    final filename = "${uuid.v4()}$extension";
-    final pathname = "images/$userID/$filename";
-    final cmd = img.Command()..decodeImageFile(file.path)..copyResize(width: 100)..writeToFile(file.path);
-    await cmd.executeThread();
-    final uploadTask = await storageRef.child(pathname).putFile(file, metadata);
-    final downloadUrl = await uploadTask.ref.getDownloadURL();
-    print(downloadUrl);
+  Future<String> _getProfilePicURL() async {
+    final userID = await helpers.getUserID();
+    final settingsDocRef = db.collection('user_settings').doc(userID);
+    final usettings = await settingsDocRef.get();
+    final userSettings = usettings.data() as Map<String, dynamic>;
+    return userSettings['profile_pic_url'];
   }
 
-  void getImageFromCamera() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
-    final userID = await getUserID();
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-        uploadPic(_image, userID);
-        showAsset = false;
-      }
-    });
-  }
-
-  // TODO: make UI work on android as well
-  void showOptions() async {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            child: Text('Photo Gallery'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              getImageFromGallery();
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('Camera'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              getImageFromCamera();
-            },
-          ),
-        ],
-      ),
-    );
+  Future<Map<String, String>> _getProfilePicFile() async {
+    final profilePicURL = await _getProfilePicURL();
+    if (profilePicURL.isEmpty) {
+      return {'type': 'default', 'path': ProfileConsts.defaultProfilePicPath};
+    }
+    return {'type': 'url', 'path': profilePicURL};
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onDoubleTap: showOptions,
-      child: Builder(
-        builder: (context) {
-          return CircleAvatar(
-            radius: 40,
-            backgroundImage: showAsset ? AssetImage(_image.path) : FileImage(_image)
+    return FutureBuilder<Map<String, String>>(
+      future: _getProfilePicFile(),
+      builder: (BuildContext context, AsyncSnapshot<Map<String, String>> snapshot) {
+        final uploadPopup = PhotoUploadPopup(context, _selectFromSource);
+        if (snapshot.hasData) {
+          dynamic bgImage;
+          if (snapshot.data?['type'] == 'default') {
+            bgImage = Image.asset(snapshot.data?['path'] as String, width: 80, height: 80, fit: BoxFit.cover);
+          } else {
+            bgImage = FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image: snapshot.data?['path'] as String,
+              height: 80,
+              width: 80,
+              fit: BoxFit.cover,
+            );
+          }
+          return GestureDetector(
+            onDoubleTap: uploadPopup.showOptions,
+            child: Builder(
+              builder: (context) {
+                return Stack(
+                  children: [
+                    ProfilePicPlaceholder(),
+                    ClipOval(
+                      child: _showFile ? Image.file(_image, width: 80, height: 80, fit: BoxFit.cover,) : bgImage,
+                    )
+                  ]
+                );
+              }
+            ),
           );
+        } else {
+          return ProfilePicPlaceholder();
         }
-      ),
+      }
     );
   }
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _spinkit = SpinKitFadingCircle(color: Colors.white, size: 25);
   final _toggleEditDUname = Toggle();
   final _toggleEditBio = Toggle();
   final _controller = TextEditingController();
   final _bioController = TextEditingController();
 
-  final FirebaseFirestore db = FirebaseFirestore.instance;
-
-  Future<Map<String, dynamic>> getUserData() async {
+  Future<Map<String, dynamic>> _getUserData() async {
     // First get the ID of the user currently logged in 
-    final userID = await getUserID();
+    final userID = await helpers.getUserID();
     final users = db.collection('users');
     final settingsDocRef = db.collection('user_settings').doc(userID);
 
@@ -155,16 +170,17 @@ class _ProfilePageState extends State<ProfilePage> {
       'username': user['username'],
       'displayUsername': userSettings['display_username'],
       'bio': userSettings['bio'],
-      'profilePicPath': userSettings['profile_pic_path']
+      // 'profilePicPath': userSettings['profile_pic_path'],
+      // 'profilePicURL': userSettings['profile_pic_url']
     };
   }
 
-  void saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
+  void _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
     if (Characters(newData).length > maxLen || (Characters(newData).isEmpty && !isBio)) {
       return;
     }
 
-    final userID = await getUserID();
+    final userID = await helpers.getUserID();
     final settingsDocRef = db.collection('user_settings').doc(userID);
 
     try {
@@ -177,6 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     _controller.dispose();
+    _bioController.dispose();
     super.dispose();
   } 
 
@@ -184,19 +201,18 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: getUserData(),
+        future: _getUserData(),
         builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             final Map<String, dynamic> data = snapshot.data as Map<String, dynamic>;
             final String username = data['username'];
             var displayUsername = data['displayUsername'];
             var bio = data['bio'];
-            final String profilePicPath = data['profilePicPath']; // will be used later
 
             void resetToText(tap) {
               if (_toggleEditDUname.showEdit.value) {
                 displayUsername = _controller.text;
-                saveNewData(
+                _saveNewData(
                   displayUsername,
                   ValidateSignupConsts.MAX_USERNAME_LEN,
                   'display_username',
@@ -209,7 +225,7 @@ class _ProfilePageState extends State<ProfilePage> {
             void resetToTextBio(tap) {
               if (_toggleEditBio.showEdit.value) {
                 bio = _bioController.text;
-                saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
+                _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
                 _toggleEditBio.makeUneditable();
               }
             }
@@ -236,7 +252,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 controller: _bioController,
                 maxLines: null,
                 onSubmitted: (context) {
-                  saveNewData(
+                  _saveNewData(
                     _bioController.text,
                     ProfileConsts.MAX_BIO_LEN,
                     'bio',
@@ -315,14 +331,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                       return TapRegion(
                         onTapOutside: (tap) {
-                          if (bio.isEmpty) {
+                          if (_bioController.text.isEmpty) {
                             FocusScope.of(context).unfocus();      
-                            _toggleEditBio.makeEditable();
+                            // _toggleEditBio.makeUneditable();
+                          } else {
+                            resetToTextBio(tap);
                           }
-                          resetToTextBio(tap);
                         },
                         child: GestureDetector(
                           onDoubleTap: () {
+                            if (_bioController.text.isEmpty) return;
                             _toggleEditBio.makeEditable();
                             _bioController.text = bio;
                           },
@@ -351,7 +369,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           } else {
             return Center(
-              child: _spinkit,
+              child: GlobalConsts.spinkit,
             );
           }
         }

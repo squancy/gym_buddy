@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
+import 'package:moye/widgets/gradient_overlay.dart';
+import 'utils/helpers.dart' as helpers;
+import 'package:moye/moye.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -11,7 +14,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
 
-  void _sendPassword() {
+  Future<void> _sendPassword() async {
     final String email = _emailController.text;
   }
 
@@ -34,30 +37,58 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
-                ForgotPasswordConsts.mainScreenText,
-                style: TextStyle(
-                  fontSize: 28,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                child: Text(
+                  ForgotPasswordConsts.mainScreenText,
+                  style: TextStyle(
+                    fontSize: 34,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ).withGradientOverlay(gradient: LinearGradient(colors: [
+                  Colors.white,
+                  Theme.of(context).colorScheme.primary,
+                ])),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                child: Text(
+                  ForgotPasswordConsts.infoText,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)
                 ),
               ),
-              const SizedBox(height: 30,),
-              Text(
-                ForgotPasswordConsts.infoText,
-                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                child: helpers.blackTextfield(
+                  context,
+                  'Email',
+                  _emailController,
+                  _emailFocusNode,
+                  isPassword: false,
+                  isEmail: true
+                )
               ),
-              const SizedBox(height: 30,),
-              TextField(
-                controller: _emailController,
-                focusNode: _emailFocusNode,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: _sendPassword,
-                child: const Text(ForgotPasswordConsts.redBtnText),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                child: SizedBox(
+                  height: 45,
+                  child: ProgressButton(
+                    onPressed: _sendPassword,
+                    loadingType: ProgressButtonLoadingType.replace,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
+                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                      textStyle: WidgetStatePropertyAll(
+                        TextStyle(
+                          fontWeight: FontWeight.bold
+                        )
+                      )
+                    ),
+                    type: ProgressButtonType.filled,
+                    child: Text(ForgotPasswordConsts.redBtnText),
+                  ),
+                ),
               ),
             ],
           ),

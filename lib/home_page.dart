@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
+import 'post_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,14 +21,26 @@ class _HomePageContentState extends State<HomePageContent> {
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(20.0),
             child: SearchAnchor(
               builder: (BuildContext context, SearchController controller) {
                 return SearchBar(
                   controller: controller,
-                  padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.all(10)),
-                  leading: const Icon(Icons.search),
-                  backgroundColor: WidgetStatePropertyAll<Color>(Theme.of(context).colorScheme.secondary),
+                  padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.symmetric(horizontal: 15, vertical: 0)),
+                  leading: Icon(Icons.search, color: Theme.of(context).colorScheme.secondary,),
+                  backgroundColor: WidgetStatePropertyAll<Color>(Colors.black),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))
+                  ),
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();      
+                  },
+                  hintText: 'Search',
+                  hintStyle: WidgetStatePropertyAll(
+                    TextStyle(
+                      color: Theme.of(context).colorScheme.secondary
+                    )
+                  ),
                 );
               },
               suggestionsBuilder: (BuildContext context, SearchController controller) {
@@ -54,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: [HomePageContent(), Container(), ProfilePage()][_selectedIndex]
+        child: [HomePageContent(), PostPage(), ProfilePage()][_selectedIndex]
       ),
       bottomNavigationBar: BottomNavigationBar(
       items: const <BottomNavigationBarItem>[

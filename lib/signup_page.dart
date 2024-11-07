@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 import 'handlers/handle_signup.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'home_page.dart';
+import 'package:moye/moye.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:moye/widgets/gradient_overlay.dart';
+import 'utils/helpers.dart' as helpers;
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -22,11 +24,8 @@ class _SignupPageState extends State<SignupPage> {
   final FocusNode _usernameFocusNode = FocusNode();
 
   final ValueNotifier<String> _signupStatus = ValueNotifier<String>("");
-  bool _showSpinner = false;
 
-  final spinkit = SpinKitFadingCircle(color: Colors.white, size: 25);
-
-  void _signup() async {
+  Future<void> _signup() async {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text;
     final String passwordConf = _passwordConfController.text;
@@ -34,21 +33,17 @@ class _SignupPageState extends State<SignupPage> {
 
     _signupStatus.value = '';
 
-    setState(() { _showSpinner = true; });
-
     // Validate data for signup
     final signupValidator = ValidateSignup(username, email, password, passwordConf);
     var (bool isValid, String errorMsg) = signupValidator.isValidParams();
     if (!isValid) {
-      _signupStatus.value = errorMsg;
-      setState(() { _showSpinner = false; });
+      setState(() { _signupStatus.value = errorMsg; });
       return;
     }
     
     (isValid, errorMsg) = await signupValidator.userExists();
     if (!isValid) {
-      _signupStatus.value = errorMsg;
-      setState(() { _showSpinner = false; });
+      setState(() { _signupStatus.value = errorMsg; });
       return;
     }
 
@@ -57,8 +52,7 @@ class _SignupPageState extends State<SignupPage> {
     var userID;
     (isValid, errorMsg, userID) = await signupInsert.insertToDB();
     if (!isValid) {
-      _signupStatus.value = errorMsg;
-      setState(() { _showSpinner = false; });
+      setState(() { _signupStatus.value = errorMsg; });
       return;
     }
 
@@ -70,7 +64,6 @@ class _SignupPageState extends State<SignupPage> {
 
     // Redirect user to main page
     setState(() {
-      _showSpinner = false;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -99,61 +92,122 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(SignupConsts.appBarText),
+        scrolledUnderElevation: 0,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                SignupConsts.mainScreenText,
-                style: TextStyle(
-                  fontSize: 28,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) => ListView(
+            children: [
+              Container(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight
                 ),
-              ),
-              SizedBox(height: 20,),
-              TextField(
-                controller: _usernameController,
-                focusNode: _usernameFocusNode,
-                decoration: const InputDecoration(labelText: 'Username'),
-              ),
-              TextField(
-                controller: _emailController,
-                focusNode: _emailFocusNode,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              TextField(
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-              ),
-              TextField(
-                controller: _passwordConfController,
-                focusNode: _passwordConfFocusNode,
-                decoration: const InputDecoration(labelText: 'Confirm password'),
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: _signup,
-                child: const Text(SignupConsts.appBarText),
-              ),
-              SizedBox(height: 20,),
-              ValueListenableBuilder<String>(
-                valueListenable: _signupStatus,
-                builder: (BuildContext context, String value, Widget? child) {
-                  return Text(value, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
-                }
-              ),
-              SizedBox(height: 20,),
-              Builder(builder: (context) => _showSpinner ? spinkit : Container()),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      child: Text(
+                        SignupConsts.mainScreenText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 34,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ).withGradientOverlay(gradient: LinearGradient(colors: [
+                        Colors.white,
+                        Theme.of(context).colorScheme.primary,
+                      ])),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      child: helpers.blackTextfield(
+                        context,
+                        'Username',
+                        _usernameController,
+                        _usernameFocusNode,
+                        isPassword: false,
+                        isEmail: false
+                      )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      child: helpers.blackTextfield(
+                        context,
+                        'Email',
+                        _emailController,
+                        _emailFocusNode,
+                        isPassword: false,
+                        isEmail: true
+                      )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      child: helpers.blackTextfield(
+                        context,
+                        'Password',
+                        _passwordController,
+                        _passwordFocusNode,
+                        isPassword: true,
+                        isEmail: false
+                      )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      child: helpers.blackTextfield(
+                        context,
+                        'Confirm password',
+                        _passwordConfController,
+                        _passwordConfFocusNode,
+                        isPassword: true,
+                        isEmail: false
+                      )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 45,
+                            child: ProgressButton(
+                              onPressed: _signup,
+                              loadingType: ProgressButtonLoadingType.replace,
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
+                                foregroundColor: WidgetStateProperty.all(Colors.white),
+                                textStyle: WidgetStatePropertyAll(
+                                  TextStyle(
+                                    fontWeight: FontWeight.bold
+                                  )
+                                )
+                              ),
+                              type: ProgressButtonType.filled,
+                              child: Text(SignupConsts.appBarText),
+                            ),
+                          ),
+                          ValueListenableBuilder<String>(
+                            valueListenable: _signupStatus,
+                            builder: (BuildContext context, String value, Widget? child) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 0),
+                                child: Text(
+                                  value,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)
+                                ),
+                              );
+                            }
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
             ],
-          ),
+          )
         ),
       ),
     );
