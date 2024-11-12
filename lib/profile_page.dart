@@ -8,7 +8,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'utils/photo_upload_popup.dart';
 import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
-import 'utils/post_builder.dart' as postBuilder;
+import 'utils/post_builder.dart' as post_builder;
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
@@ -140,6 +140,13 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isFirst = true;
   var _firstVisible;
   var _getPostsByUserFuture;
+  var _getUserDataFuture;
+
+  @override
+  void initState() {
+    _getUserDataFuture = _getUserData();
+    super.initState();
+  }
 
   Future<List<Map<String, dynamic>>> _getPostsByUser() async {
     if (_lastVisible == null) return [];
@@ -236,7 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
         )
       ),
       body: FutureBuilder(
-        future: _getUserData(),
+        future: _getUserDataFuture,
         builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             final Map<String, dynamic> data = snapshot.data as Map<String, dynamic>;
@@ -324,11 +331,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             TapRegion(
                               onTapOutside: (tap) {
                                 if (_toggleEditDUname.showEdit.value) {
-                                  resetToText(tap);
                                   setState(() {
                                     _lastVisible = _firstVisible;
                                     _isFirst = true;
                                   });
+                                  resetToText(tap);
                                 }
                               },
                               child: GestureDetector(
@@ -428,7 +435,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (snapshot.hasData && snapshot.data != null) {
                       for (final post in snapshot.data!) {
                         posts.add(
-                          postBuilder.postBuilder(post, displayUsername, context)
+                          post_builder.postBuilder(post, displayUsername, context)
                         );
                       }
                       return Column(
