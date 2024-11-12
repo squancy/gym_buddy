@@ -5,13 +5,13 @@ import 'utils/photo_upload_popup.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:uuid/uuid.dart';
-import 'package:image_fade/image_fade.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
-import 'consts/common_consts.dart';
 import 'package:moye/moye.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as datepicker;
+import 'package:intl/intl.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
@@ -61,6 +61,7 @@ class _PostPageState extends State<PostPage> {
   final _controller = TextEditingController();
   String _errorMsg = '';
   bool _hasError = false;
+  DateTime? _datetimeVal;
 
   void _selectFromSource(ImageSource sourceType) async {
     final pickedFiles = await _picker.pickMultiImage(limit: 5);
@@ -76,7 +77,8 @@ class _PostPageState extends State<PostPage> {
     List<File> images,
     String postText,
     String? dayType,
-    String? gym) async {
+    String? gym,
+    DateTime? when) async {
     // First validate user input: only the text field is mandatory
     setState(() {
       _errorMsg = '';
@@ -112,6 +114,7 @@ class _PostPageState extends State<PostPage> {
       'gym': gym,
       'download_url_list': downloadURLs,
       'filename_list': filenames,
+      'when': when,
       'date': FieldValue.serverTimestamp()
     };
 
@@ -134,6 +137,12 @@ class _PostPageState extends State<PostPage> {
   Widget build(BuildContext context) {
     final uploadPhoto = PhotoUploadPopup(context, _selectFromSource);
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(0),
+        child: AppBar(
+          scrolledUnderElevation: 0,
+        )
+      ),
       body: ListView(
         children: [
           Padding(
@@ -177,16 +186,6 @@ class _PostPageState extends State<PostPage> {
                         maxLines: null,
                         controller: _controller,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          uploadPhoto.showOptions();
-                        },
-                        child: Icon(
-                          Icons.add_a_photo,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 18
-                        ),
-                      )
                     ],
                   ),
                 ),
@@ -233,37 +232,64 @@ class _PostPageState extends State<PostPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: SizedBox(
-                    height: _showImages ? 150 : 0,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      children: [
-                      for (final el in _selectedImages)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          child: SizedBox(
-                            width: 180,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10.0),
-                              child: FittedBox(
-                                fit: BoxFit.cover,
-                                clipBehavior: Clip.hardEdge,
-                                child: ImageFade(
-                                  image: FileImage(File(el.path)),
-                                  placeholder: Container(
-                                    width: 180,
-                                    height: 150,
-                                    color: Colors.black,
-                                  ),
-                                )
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                        child: FilledButton.icon(
+                          icon: Icon(Icons.date_range_rounded, size: 18,),
+                          onPressed: () {
+                            DateTime now = DateTime.now();
+                            datepicker.DatePicker.showDateTimePicker(
+                              context,
+                              theme: datepicker.DatePickerTheme(
+                                backgroundColor: Theme.of(context).colorScheme.surface,
+                                doneStyle: TextStyle(color: Colors.white),
+                                cancelStyle: TextStyle(color: Colors.white),
+                                itemStyle: TextStyle(color: Colors.white)
                               ),
-                            ),
+                              showTitleActions: true,
+                              minTime: now,
+                              onConfirm: (date) {
+                                setState(() {
+                                  _datetimeVal = date;
+                                });
+                              },
+                              currentTime: DateTime.now(),
+                              locale: datepicker.LocaleType.en
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(Colors.black),
+                            foregroundColor: _datetimeVal != null ? WidgetStateProperty.all(Colors.white) : WidgetStateProperty.all(Colors.grey) 
+                          ),
+                          label: _datetimeVal != null ? Text(DateFormat('MM-dd kk:mm').format(_datetimeVal as DateTime)) : Text('What time?')
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                        child: FilledButton.icon(
+                          onPressed: uploadPhoto.showOptions,
+                          label: Text('Upload photos'),
+                          icon: Icon(Icons.add_a_photo_rounded, size: 18,),
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(Colors.black),
+                            foregroundColor: _selectedImages.isNotEmpty ? WidgetStateProperty.all(Colors.white) : WidgetStateProperty.all(Colors.grey)
                           ),
                         ),
-                    ],),
+                      )
+                    ],
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: helpers.horizontalImageViewer(
+                    showImages: _showImages,
+                    images: _selectedImages,
+                    isPost: true
+                  )
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -275,7 +301,8 @@ class _PostPageState extends State<PostPage> {
                           _selectedImages,
                           _controller.text,
                           _dayTypeVal,
-                          _gymVal
+                          _gymVal,
+                          _datetimeVal
                         );
                       },
                       loadingType: ProgressButtonLoadingType.replace,

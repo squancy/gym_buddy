@@ -6,6 +6,7 @@ import 'package:moye/moye.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moye/widgets/gradient_overlay.dart';
 import 'utils/helpers.dart' as helpers;
+import 'package:geolocator/geolocator.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -25,6 +26,28 @@ class _SignupPageState extends State<SignupPage> {
 
   final ValueNotifier<String> _signupStatus = ValueNotifier<String>("");
 
+  Future<void> _requestPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    } 
+  }
+
   Future<void> _signup() async {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text;
@@ -32,6 +55,7 @@ class _SignupPageState extends State<SignupPage> {
     final String username = _usernameController.text.trim();
 
     _signupStatus.value = '';
+    await _requestPosition();
 
     // Validate data for signup
     final signupValidator = ValidateSignup(username, email, password, passwordConf);

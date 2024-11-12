@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:io' show Platform;
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:uuid/uuid.dart';
+import '../utils/helpers.dart' as helpers;
 
 /*
   Validates parameters used during the sign up process
@@ -79,23 +80,6 @@ class InsertSignup {
   final String _password;
   final String _username;
 
-  Future<Position?> _getGeolocation() async { 
-    // Get geolocation data, if available
-    try {
-      Position? geoloc;
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (serviceEnabled && permission != LocationPermission.denied) {
-        geoloc = await Geolocator.getCurrentPosition();
-      } else {
-        geoloc = await Geolocator.getLastKnownPosition();
-      }
-      return geoloc;
-    } catch (e) {
-      return null;
-    }
-  }
-
   String _getPlatform() {
     // Detect current platform
     String platform = 'unknown';
@@ -123,7 +107,7 @@ class InsertSignup {
 
     final (String salt, String pwh) = await _hashPassword();
     final String platform = _getPlatform();
-    final Position? geoloc = await _getGeolocation();
+    final Position? geoloc = await helpers.getGeolocation();
 
     var uuid = Uuid();
     String userID = uuid.v4();
@@ -134,7 +118,7 @@ class InsertSignup {
       'password': pwh,
       'salt': salt,
       'platform': platform,
-      'geoloc': geoloc,
+      'geoloc': geoloc != null ? [geoloc.latitude, geoloc.longitude] : geoloc,
       'signup_date': FieldValue.serverTimestamp()
     };
 

@@ -8,16 +8,10 @@ import 'package:transparent_image/transparent_image.dart';
 import 'utils/photo_upload_popup.dart';
 import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'utils/post_builder.dart' as postBuilder;
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
-
-/*
-
-*/
-final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-final x = prefs.setBool('loggedIn', false);
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -43,18 +37,6 @@ class ProfilePhoto extends StatefulWidget {
 
   @override
   State<ProfilePhoto> createState() => _ProfilePhotoState();
-}
-
-class ProfilePicPlaceholder extends StatelessWidget {
-  const ProfilePicPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 40,
-      backgroundColor: Color.fromARGB(255, 14, 22, 29),
-    );
-  }
 }
 
 class _ProfilePhotoState extends State<ProfilePhoto> {
@@ -123,6 +105,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
               height: 80,
               width: 80,
               fit: BoxFit.cover,
+              fadeInDuration: Duration(milliseconds: 250),
             );
           }
           return GestureDetector(
@@ -131,7 +114,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
               builder: (context) {
                 return Stack(
                   children: [
-                    ProfilePicPlaceholder(),
+                    helpers.ProfilePicPlaceholder(radius: 40,),
                     ClipOval(
                       child: _showFile ? Image.file(_image, width: 80, height: 80, fit: BoxFit.cover,) : bgImage,
                     )
@@ -141,7 +124,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
             ),
           );
         } else {
-          return ProfilePicPlaceholder();
+          return helpers.ProfilePicPlaceholder(radius: 40,);
         }
       }
     );
@@ -153,6 +136,50 @@ class _ProfilePageState extends State<ProfilePage> {
   final _toggleEditBio = Toggle();
   final _controller = TextEditingController();
   final _bioController = TextEditingController();
+  var _lastVisible;
+  bool _isFirst = true;
+  var _firstVisible;
+  var _getPostsByUserFuture;
+
+  Future<List<Map<String, dynamic>>> _getPostsByUser() async {
+    if (_lastVisible == null) return [];
+    String? userID = await helpers.getUserID();
+    List<Map<String, dynamic>> res = [];
+    try {
+      var userPosts = await db.collection('posts')
+        .where('author', isEqualTo: userID)
+        .orderBy('date', descending: true)
+        .startAfterDocument(_lastVisible)
+        .limit(25).get();
+      var userData = await db.collection('user_settings').doc(userID).get();
+      var userPostDocs = userPosts.docs;
+      if (_isFirst) {
+        userPostDocs.add(_lastVisible);
+      }
+      _isFirst = false;
+      _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[userPosts.docs.length - 1];
+      for (final post in userPostDocs) {
+        Map<String, dynamic> data = post.data();
+        data['author_display_username'] = userData.data()!['display_username'];
+        data['author_profile_pic_url'] = userData.data()!['profile_pic_url'];
+        res.add(data);
+      }
+    } catch (e) {
+      print(e);
+      return [];
+
+    }
+    return res;
+  }
+
+  Future<void> _setLastVisibleToFirst(userID) async {
+    var userPosts = await db.collection('posts')
+      .where('author', isEqualTo: userID)
+      .orderBy('date', descending: true)
+      .limit(1).get();
+    _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[0];
+    _firstVisible = _lastVisible;
+  }
 
   Future<Map<String, dynamic>> _getUserData() async {
     // First get the ID of the user currently logged in 
@@ -166,12 +193,14 @@ class _ProfilePageState extends State<ProfilePage> {
     final usettings = await settingsDocRef.get();
     final userSettings = usettings.data() as Map<String, dynamic>;
 
+    await _setLastVisibleToFirst(userID);
+    _getPostsByUserFuture = _getPostsByUser();
+
     return {
       'username': user['username'],
       'displayUsername': userSettings['display_username'],
       'bio': userSettings['bio'],
-      // 'profilePicPath': userSettings['profile_pic_path'],
-      // 'profilePicURL': userSettings['profile_pic_url']
+      'userID': userID
     };
   }
 
@@ -200,6 +229,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(0),
+        child: AppBar(
+          scrolledUnderElevation: 0,
+        )
+      ),
       body: FutureBuilder(
         future: _getUserData(),
         builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
@@ -230,6 +265,16 @@ class _ProfilePageState extends State<ProfilePage> {
               }
             }
 
+            void finishBioEdit() {
+              _saveNewData(
+                _bioController.text,
+                ProfileConsts.MAX_BIO_LEN,
+                'bio',
+                isBio: true
+              );
+              resetToText(null);             
+            }
+
             Widget buildBioField({required bool autofocus}) {
               return TextField(
                 decoration: InputDecoration(
@@ -251,14 +296,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 controller: _bioController,
                 maxLines: null,
+                onChanged: (value) {
+                  bio = _bioController.text;
+                },
+                onEditingComplete: finishBioEdit,
                 onSubmitted: (context) {
-                  _saveNewData(
-                    _bioController.text,
-                    ProfileConsts.MAX_BIO_LEN,
-                    'bio',
-                    isBio: true
-                  );
-                  resetToText(null);
+                  finishBioEdit();
+                },
+                onTapOutside: (event) {
+                  finishBioEdit();
                 },
               );
             }
@@ -276,7 +322,15 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                             TapRegion(
-                              onTapOutside: resetToText,
+                              onTapOutside: (tap) {
+                                if (_toggleEditDUname.showEdit.value) {
+                                  resetToText(tap);
+                                  setState(() {
+                                    _lastVisible = _firstVisible;
+                                    _isFirst = true;
+                                  });
+                                }
+                              },
                               child: GestureDetector(
                                 onDoubleTap: () {
                                   _toggleEditDUname.makeEditable();
@@ -304,11 +358,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                         onSubmitted: resetToText,
                                       );
                                     } else {
-                                      return Text(displayUsername, style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0,
-                                      ));
+                                      return Padding(
+                                        padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                        child: Text(displayUsername, style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0,
+                                        )),
+                                      );
                                     }
                                   }),
                                 ),
@@ -333,14 +390,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         onTapOutside: (tap) {
                           if (_bioController.text.isEmpty) {
                             FocusScope.of(context).unfocus();      
-                            // _toggleEditBio.makeUneditable();
                           } else {
                             resetToTextBio(tap);
                           }
                         },
                         child: GestureDetector(
                           onDoubleTap: () {
-                            if (_bioController.text.isEmpty) return;
+                            if (bio.isEmpty) return;
                             _toggleEditBio.makeEditable();
                             _bioController.text = bio;
                           },
@@ -363,8 +419,28 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ), 
                 Divider(
-                  color: Colors.grey
+                  color: Colors.white12
                 ),
+                FutureBuilder(
+                  future: _getPostsByUserFuture,
+                  builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                    List<Widget> posts = [];
+                    if (snapshot.hasData && snapshot.data != null) {
+                      for (final post in snapshot.data!) {
+                        posts.add(
+                          postBuilder.postBuilder(post, displayUsername, context)
+                        );
+                      }
+                      return Column(
+                        children: posts,
+                      );
+                    } else {
+                      return Center(
+                        child: GlobalConsts.spinkit,
+                      );
+                    }
+                  }
+                )
               ],
             );
           } else {
