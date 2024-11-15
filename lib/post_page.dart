@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:moye/widgets/gradient_overlay.dart';
 import 'utils/photo_upload_popup.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -12,6 +11,7 @@ import 'utils/helpers.dart' as helpers;
 import 'package:moye/moye.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as datepicker;
 import 'package:intl/intl.dart';
+import 'package:moye/widgets/gradient_overlay.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();

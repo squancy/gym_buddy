@@ -73,16 +73,15 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   Future<bool> _loggedIn() async {
-    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-    bool loggedIn = true;
-    bool? fi = await prefs.getBool('loggedIn');
-    if (fi == null || fi == false) {
-      await prefs.setBool('loggedIn', false);
-      loggedIn = false;
+      final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+      bool loggedIn = true;
+      bool? fi = await prefs.getBool('loggedIn');
+      if (fi == null || fi == false) {
+        await prefs.setBool('loggedIn', false);
+        loggedIn = false;
+      }
+      return loggedIn;
     }
-    return loggedIn;
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
-import 'package:moye/widgets/gradient_overlay.dart';
 import 'utils/helpers.dart' as helpers;
 import 'package:moye/moye.dart';
+import 'package:moye/widgets/gradient_overlay.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});

@@ -32,6 +32,7 @@ class _HomePageContentState extends State<HomePageContent> {
       }
     }
 
+
     return {};
   }
 
@@ -44,10 +45,10 @@ class _HomePageContentState extends State<HomePageContent> {
           scrolledUnderElevation: 0,
         )
       ),
-      body: Column(
+      body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            padding: const EdgeInsets.all(20.0),
             child: SearchAnchor(
               builder: (BuildContext context, SearchController controller) {
                 return SearchBar(
@@ -74,16 +75,8 @@ class _HomePageContentState extends State<HomePageContent> {
               }
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                ],
-              ),
-            )
-          )
         ],
-      )
+      ),
     );
   }
 }

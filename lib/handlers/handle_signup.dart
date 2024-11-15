@@ -3,6 +3,7 @@ import '../consts/common_consts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io' show Platform;
+//import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:uuid/uuid.dart';
 import '../utils/helpers.dart' as helpers;
 import 'package:dbcrypt/dbcrypt.dart';
@@ -97,8 +98,8 @@ class InsertSignup {
     // After that, hash the password with the generated salt
     //var salt = await FlutterBcrypt.saltWithRounds(rounds: 10);
     //var pwh = await FlutterBcrypt.hashPw(password: _password, salt: salt);
-    String salt = bcrypt.gensaltWithRounds(10);
-    var pwh = bcrypt.hashpw(_password, salt);
+    var pwh = bcrypt.hashpw(_password, bcrypt.gensaltWithRounds(10));
+    var salt = pwh.substring(0, 29);
     return (salt, pwh);
   }
 
