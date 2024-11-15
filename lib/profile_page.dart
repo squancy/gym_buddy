@@ -211,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
     };
   }
 
-  void _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
+  Future<void> _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
     if (Characters(newData).length > maxLen || (Characters(newData).isEmpty && !isBio)) {
       return;
     }
@@ -245,41 +245,41 @@ class _ProfilePageState extends State<ProfilePage> {
       body: FutureBuilder(
         future: _getUserDataFuture,
         builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
+          if (snapshot.hasData && snapshot.data != null && snapshot.connectionState == ConnectionState.done) {
             final Map<String, dynamic> data = snapshot.data as Map<String, dynamic>;
             final String username = data['username'];
             var displayUsername = data['displayUsername'];
             var bio = data['bio'];
 
-            void resetToText(tap) {
+            Future<void> resetToText(tap) async {
               if (_toggleEditDUname.showEdit.value) {
                 displayUsername = _controller.text;
-                _saveNewData(
+                _toggleEditDUname.makeUneditable();
+                await _saveNewData(
                   displayUsername,
                   ValidateSignupConsts.MAX_USERNAME_LEN,
                   'display_username',
                   isBio: false
                 );
-                _toggleEditDUname.makeUneditable();
               }
             } 
 
-            void resetToTextBio(tap) {
+            Future<void> resetToTextBio(tap) async {
               if (_toggleEditBio.showEdit.value) {
                 bio = _bioController.text;
-                _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
                 _toggleEditBio.makeUneditable();
+                _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
               }
             }
 
-            void finishBioEdit() {
-              _saveNewData(
+            Future<void> finishBioEdit() async {
+              resetToTextBio(null);             
+              await _saveNewData(
                 _bioController.text,
                 ProfileConsts.MAX_BIO_LEN,
                 'bio',
                 isBio: true
               );
-              resetToText(null);             
             }
 
             Widget buildBioField({required bool autofocus}) {
@@ -329,13 +329,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                             TapRegion(
-                              onTapOutside: (tap) {
+                              onTapOutside: (tap) async {
                                 if (_toggleEditDUname.showEdit.value) {
+                                  await resetToText(tap);
                                   setState(() {
+                                    _getUserDataFuture = _getUserData();
                                     _lastVisible = _firstVisible;
                                     _isFirst = true;
                                   });
-                                  resetToText(tap);
                                 }
                               },
                               child: GestureDetector(
@@ -363,6 +364,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                           letterSpacing: 0,
                                         ),
                                         onSubmitted: resetToText,
+                                        onChanged: (value) {
+                                          displayUsername = _controller.value;
+                                        },
                                       );
                                     } else {
                                       return Padding(
@@ -394,11 +398,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         _toggleEditBio.makeEditable();
                       }
                       return TapRegion(
-                        onTapOutside: (tap) {
+                        onTapOutside: (tap) async {
                           if (_bioController.text.isEmpty) {
                             FocusScope.of(context).unfocus();      
                           } else {
-                            resetToTextBio(tap);
+                            await resetToTextBio(tap);
                           }
                         },
                         child: GestureDetector(

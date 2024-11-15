@@ -39,7 +39,6 @@ dependencies:
   firebase_core: ^3.6.0
   cloud_firestore: ^5.4.4
   geolocator: ^13.0.1
-  flutter_bcrypt: ^1.0.8
   flutter_spinkit: ^5.2.1
   shared_preferences: ^2.3.2
   uuid: ^4.4.2
@@ -55,6 +54,7 @@ dependencies:
   flutter_datetime_picker_plus: ^2.2.0
   intl: ^0.19.0
   get_time_ago: ^2.0.0
+  dbcrypt: ^2.0.0
 
 dev_dependencies:
   flutter_test:

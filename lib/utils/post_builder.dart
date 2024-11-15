@@ -1,9 +1,11 @@
 import 'package:get_time_ago/get_time_ago.dart';
+import 'package:gym_buddy/consts/common_consts.dart';
+import 'package:image_fade/image_fade.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'helpers.dart' as helpers;
 import 'time_ago_format.dart';
+import 'package:path/path.dart' as p;
 
 Widget buildInfoPart(field, post, context) {
   String val;
@@ -36,6 +38,7 @@ Widget buildInfoPart(field, post, context) {
 }
 
 Widget postBuilder(post, displayUsername, context) {
+  print(post['author_profile_pic_url'] == null);
   GetTimeAgo.setCustomLocaleMessages('en', CustomMessages());
   return Column(
     children: [
@@ -44,20 +47,31 @@ Widget postBuilder(post, displayUsername, context) {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                helpers.ProfilePicPlaceholder(radius: 20,),
-                ClipOval(
-                  child: FadeInImage.memoryNetwork(
-                    placeholder: kTransparentImage,
-                    image: post['author_profile_pic_url'],
-                    height: 40,
-                    width: 40,
-                    fit: BoxFit.cover,
-                    fadeInDuration: Duration(milliseconds: 250),
-                  )      
-                )
-              ]
+            post['author_profile_pic_url'].isEmpty ? Image.asset(
+              ProfileConsts.defaultProfilePicPath,
+              fit: BoxFit.cover,
+              width: 40,
+              height: 40,
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (wasSynchronouslyLoaded) {
+                  return child;
+                }
+                return AnimatedOpacity(
+                  duration: const Duration(milliseconds: 100),
+                  opacity: frame == null ? 0 : 1,
+                  child: child,
+                );
+              },
+            ) : ClipOval(
+              child: ImageFade(
+                placeholder: helpers.ProfilePicPlaceholder(radius: 20,),
+                image: NetworkImage(post['author_profile_pic_url']),
+                height: 40,
+                width: 40,
+                fit: BoxFit.cover,
+                duration: Duration(milliseconds: 100),
+                syncDuration: Duration(milliseconds: 100),
+              )      
             ),
             Expanded(
               child: Column(
@@ -100,9 +114,9 @@ Widget postBuilder(post, displayUsername, context) {
                     padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     child: Text(post['content'], overflow: TextOverflow.ellipsis, maxLines: 10,),
                   ),
-                  buildInfoPart('gym', post, context),
-                  buildInfoPart('when', post, context),
-                  buildInfoPart('day_type', post, context),
+                  post['gym'] == null ? Container() : buildInfoPart('gym', post, context),
+                  post['when'] == null ? Container() : buildInfoPart('when', post, context),
+                  post['day_type'] == null ? Container() : buildInfoPart('day_type', post, context),
                 ],
               ),
             )
@@ -114,7 +128,8 @@ Widget postBuilder(post, displayUsername, context) {
         child: helpers.horizontalImageViewer(
           showImages: true,
           images: post['download_url_list'],
-          isPost: false
+          isPost: false,
+          context: context
         ),
       ),
       Divider(

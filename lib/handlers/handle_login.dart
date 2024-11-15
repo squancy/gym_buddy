@@ -1,5 +1,5 @@
-import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dbcrypt/dbcrypt.dart';
 
 class CheckLogin {
   CheckLogin(
@@ -16,7 +16,10 @@ class CheckLogin {
 
   Future<bool> _isPasswordValid(user) async {
     String passwordDB = user['password'];
-    return await FlutterBcrypt.verify(password: _password, hash: passwordDB);
+    var bcrypt = DBCrypt();
+
+    // Verify if the provided password matches the stored hash
+    return bcrypt.checkpw(_password, passwordDB);
   }
 
   Future<(bool success, String errorMsg, String userID)> validateLogin() async {

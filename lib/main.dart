@@ -72,9 +72,15 @@ class BigRedButton extends StatelessWidget {
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
-  Future<bool?> _loggedIn() async {
-    final SharedPreferencesAsync prefs = SharedPreferencesAsync();;
-    return await prefs.getBool('loggedIn');
+  Future<bool> _loggedIn() async {
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    bool loggedIn = true;
+    bool? fi = await prefs.getBool('loggedIn');
+    if (fi == null || fi == false) {
+      await prefs.setBool('loggedIn', false);
+      loggedIn = false;
+    }
+    return loggedIn;
   }
 
   @override

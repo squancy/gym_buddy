@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_fade/image_fade.dart';
 import 'dart:io';
+import 'package:moye/moye.dart';
 
 Future<String?> getUserID() async {
   final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+  // await prefs.setBool('loggedIn', false);
   return prefs.getString('userID');
 }
 
@@ -65,7 +67,49 @@ Future<Position?> getGeolocation() async {
   }
 }
 
-Widget horizontalImageViewer({required showImages, required images, required isPost}) {
+class ImageBig {
+  const ImageBig(this.context, this.image);
+
+  final BuildContext context;
+  final image;
+
+  SafeArea buildImage() {
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const BottomSheetHandle().alignCenter,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: ImageFade(
+                image: image,
+                placeholder: Container(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          )
+        ]
+      )
+    );
+  }
+
+  void showImageInBig() {
+    BottomSheetUtils.showBottomSheet(
+      context: context,
+      borderRadius: BorderRadius.circular(16),
+      config: WrapBottomSheetConfig(
+        builder: (context, controller) {
+          return buildImage();
+        },
+      ),
+    );
+  }
+}
+
+Widget horizontalImageViewer({required showImages, required images, required isPost, context}) {
   return SizedBox(
     height: showImages ? 150 : 0,
     child: ListView(
@@ -75,21 +119,27 @@ Widget horizontalImageViewer({required showImages, required images, required isP
       for (final el in images)
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-          child: SizedBox(
-            width: 180,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: FittedBox(
-                fit: BoxFit.cover,
-                clipBehavior: Clip.hardEdge,
-                child: ImageFade(
-                  image: isPost ? FileImage(File(el.path)) : NetworkImage(el),
-                  placeholder: Container(
-                    width: 180,
-                    height: 150,
-                    color: Colors.black,
-                  ),
-                )
+          child: GestureDetector(
+            onTap: () {
+              final imgb = ImageBig(context, isPost ? FileImage(File(el.path)) : NetworkImage(el));
+              imgb.showImageInBig();
+            },
+            child: SizedBox(
+              width: 180,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  clipBehavior: Clip.hardEdge,
+                  child: ImageFade(
+                    image: isPost ? FileImage(File(el.path)) : NetworkImage(el),
+                    placeholder: Container(
+                      width: 180,
+                      height: 150,
+                      color: Colors.black,
+                    ),
+                  )
+                ),
               ),
             ),
           ),
