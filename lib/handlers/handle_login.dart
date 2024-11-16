@@ -1,4 +1,3 @@
-//import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 
@@ -15,17 +14,14 @@ class CheckLogin {
     return await users.where('email', isEqualTo: _email).get();
   }
 
-  // Future<bool> _isPasswordValid(user) async {
-  //   String passwordDB = user['password'];
-  //   return await FlutterBcrypt.verify(password: _password, hash: passwordDB);
-  // }
   Future<bool> _isPasswordValid(user) async {
-  String passwordDB = user['password'];
-  var bcrypt = DBCrypt();
+    String passwordDB = user['password'];
+    var bcrypt = DBCrypt();
 
-  // Verify if the provided password matches the stored hash
-  return bcrypt.checkpw(_password, passwordDB);
-}
+    // Verify if the provided password matches the stored hash
+    return bcrypt.checkpw(_password, passwordDB);
+  }
+
   Future<(bool success, String errorMsg, String userID)> validateLogin() async {
     // Fetch user with the given email, if exists
     final FirebaseFirestore db = FirebaseFirestore.instance;
