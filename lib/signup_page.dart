@@ -55,7 +55,9 @@ class _SignupPageState extends State<SignupPage> {
     final String username = _usernameController.text.trim();
 
     _signupStatus.value = '';
-    await _requestPosition();
+    if (!GlobalConsts.TEST) {
+      await _requestPosition();
+    }
 
     // Validate data for signup
     final signupValidator = ValidateSignup(username, email, password, passwordConf);

@@ -7,6 +7,7 @@ import 'consts/common_consts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   // Firebase init START
@@ -15,6 +16,15 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   // Firebase init END
+
+  if (GlobalConsts.TEST) {
+    try {
+      FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
 
   runApp(const GymBuddyApp());
 }

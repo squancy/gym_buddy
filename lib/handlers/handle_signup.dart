@@ -24,18 +24,19 @@ class ValidateSignup {
   final String _password;
   final String _passwordConf;
 
-  // TODO: check if username only contains alphanumeric characters and _
   (bool isValid, String errorMsg) isValidParams() {
     if (_username.isEmpty || _email.isEmpty || _password.isEmpty || _passwordConf.isEmpty) {
-      return (false, 'Please fill all fields');
+      return (false, 'Fill all fields');
     } else if (_username.length > ValidateSignupConsts.MAX_USERNAME_LEN) {
       return (false, 'Username is too long');
     } else if (!EmailValidator.validate(_email)) {
       return (false, 'Email is invalid');
     } else if (_password != _passwordConf) {
-      return (false, 'The password fields do not match');
+      return (false, 'Password fields do not match');
     } else if (_password.length < 6) {
       return (false, 'The length of your password must be at least 6');
+    } else if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(_username)) {
+      return (false, 'Username can only contain alphanumeric characters and _');
     }
     return (true, '');
   }
@@ -79,6 +80,7 @@ class InsertSignup {
   final String _email;
   final String _password;
   final String _username;
+  final _dbcrypt = DBCrypt();
 
   String _getPlatform() {
     // Detect current platform
@@ -92,13 +94,10 @@ class InsertSignup {
   }
 
   Future<(String salt, String password)> _hashPassword() async {
-    var bcrypt = DBCrypt();
     // Create a different salt for each user
     // After that, hash the password with the generated salt
-    //var salt = await FlutterBcrypt.saltWithRounds(rounds: 10);
-    //var pwh = await FlutterBcrypt.hashPw(password: _password, salt: salt);
-    String salt = bcrypt.gensaltWithRounds(10);
-    var pwh = bcrypt.hashpw(_password, salt);
+    String salt = _dbcrypt.gensaltWithRounds(10);
+    var pwh = _dbcrypt.hashpw(_password, salt);
     return (salt, pwh);
   }
 
