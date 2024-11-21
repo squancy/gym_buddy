@@ -4,6 +4,7 @@ import 'post_page.dart';
 import 'utils/helpers.dart' as helpers;
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -98,30 +99,52 @@ class _HomePageState extends State<HomePage> {
     });
   } 
 
+  final List<TabItem> items = [
+    TabItem(
+      icon: Icons.home,
+      title: 'Home',
+    ),
+    TabItem(
+      icon: Icons.add_box_rounded,
+      title: 'Post',
+    ),
+    TabItem(
+      icon: Icons.people_alt_rounded,
+      title: 'Buddies',
+    ),
+    TabItem(
+      icon: Icons.account_box,
+      title: 'Profile',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: Center(
-        child: [HomePageContent(), PostPage(), ProfilePage()][_selectedIndex]
+        child: [HomePageContent(), PostPage(), Container(), ProfilePage()][_selectedIndex],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home'
+      bottomNavigationBar:             Padding(
+        padding: const EdgeInsets.all(30),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(30))
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: BottomBarFloating(
+                  items: items,
+                  backgroundColor: Colors.black,
+                  color: Theme.of(context).colorScheme.primary,
+                  colorSelected: Theme.of(context).colorScheme.tertiary,
+                  indexSelected: _selectedIndex,
+                  onTap: _onItemTapped,
+                  duration: Duration(milliseconds: 200),
+                  titleStyle: TextStyle(
+                    letterSpacing: 0
+                  ),
+                ),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add),
-          label: 'Find a buddy'
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile', 
-        ),
-      ],
-      currentIndex: _selectedIndex,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      onTap: _onItemTapped,
       ),
     );
   }

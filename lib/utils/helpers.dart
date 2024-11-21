@@ -7,7 +7,7 @@ import 'package:moye/moye.dart';
 
 Future<String?> getUserID() async {
   final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-  // await prefs.setBool('loggedIn', false);
+  await prefs.setBool('loggedIn', false);
   return prefs.getString('userID');
 }
 
