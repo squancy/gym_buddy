@@ -4,11 +4,11 @@ import 'consts/common_consts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'utils/photo_upload_popup.dart';
 import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
 import 'utils/post_builder.dart' as post_builder;
+import 'package:image_fade/image_fade.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
@@ -97,28 +97,31 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
         if (snapshot.hasData) {
           dynamic bgImage;
           if (snapshot.data?['type'] == 'default') {
-            bgImage = Image.asset(snapshot.data?['path'] as String, width: 80, height: 80, fit: BoxFit.cover);
+            bgImage = AssetImage(snapshot.data?['path'] as String);
           } else {
-            bgImage = FadeInImage.memoryNetwork(
-              placeholder: kTransparentImage,
-              image: snapshot.data?['path'] as String,
-              height: 80,
-              width: 80,
-              fit: BoxFit.cover,
-              fadeInDuration: Duration(milliseconds: 250),
-            );
+            bgImage = NetworkImage(snapshot.data?['path'] as String);
           }
           return GestureDetector(
             onDoubleTap: uploadPopup.showOptions,
             child: Builder(
               builder: (context) {
-                return Stack(
-                  children: [
-                    helpers.ProfilePicPlaceholder(radius: 40,),
-                    ClipOval(
-                      child: _showFile ? Image.file(_image, width: 80, height: 80, fit: BoxFit.cover,) : bgImage,
-                    )
-                  ]
+                return SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: ClipOval(
+                    child: FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                      child: ImageFade(
+                        image: _showFile ? FileImage(_image) : bgImage,
+                        placeholder: Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.black,
+                        ),
+                      )
+                    ),
+                  ),
                 );
               }
             ),
@@ -332,11 +335,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               onTapOutside: (tap) async {
                                 if (_toggleEditDUname.showEdit.value) {
                                   await resetToText(tap);
+                                  /*
                                   setState(() {
                                     _getUserDataFuture = _getUserData();
                                     _lastVisible = _firstVisible;
                                     _isFirst = true;
                                   });
+                                  */
                                 }
                               },
                               child: GestureDetector(

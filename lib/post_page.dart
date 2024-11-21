@@ -161,7 +161,8 @@ class _PostPageState extends State<PostPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ).withGradientOverlay(gradient: LinearGradient(colors: [
-                    Colors.white,
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.tertiary,
                     Theme.of(context).colorScheme.primary,
                   ])),
                 ),
@@ -295,8 +296,8 @@ class _PostPageState extends State<PostPage> {
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: SizedBox(
                     height: 45,
-                    child: ProgressButton(
-                      onPressed: () {
+                    child: helpers.ProgressBtn(
+                      onPressedFn: () {
                         return createNewPost(
                           _selectedImages,
                           _controller.text,
@@ -305,19 +306,8 @@ class _PostPageState extends State<PostPage> {
                           _datetimeVal
                         );
                       },
-                      loadingType: ProgressButtonLoadingType.replace,
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
-                        foregroundColor: WidgetStateProperty.all(Colors.white),
-                        textStyle: WidgetStatePropertyAll(
-                          TextStyle(
-                            fontWeight: FontWeight.bold
-                          )
-                        )
-                      ),
-                      type: ProgressButtonType.filled,
-                      child: Text('Post'),
-                    ),
+                      child: Text('Post')
+                    )
                   ),
                 ),
                 _hasError ? Center(

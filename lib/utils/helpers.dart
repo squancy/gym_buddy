@@ -11,6 +11,7 @@ Future<String?> getUserID() async {
   return prefs.getString('userID');
 }
 
+// TODO: rewrite this function to a StatelessWidget class
 Widget blackTextfield(
   BuildContext context,
   String labelText,
@@ -25,7 +26,7 @@ Widget blackTextfield(
       contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
       labelText: labelText,
       labelStyle: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
+        color: Theme.of(context).colorScheme.tertiary,
         fontWeight: FontWeight.w500
       ),
       floatingLabelStyle: TextStyle(
@@ -80,7 +81,7 @@ class ImageBig {
         children: [
           const BottomSheetHandle().alignCenter,
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: ImageFade(
@@ -109,6 +110,7 @@ class ImageBig {
   }
 }
 
+// TODO: rewrite this function to a StatelessWidget class
 Widget horizontalImageViewer({required showImages, required images, required isPost, context}) {
   return SizedBox(
     height: showImages ? 150 : 0,
@@ -158,6 +160,36 @@ class ProfilePicPlaceholder extends StatelessWidget {
     return CircleAvatar(
       radius: radius,
       backgroundColor: Color.fromARGB(255, 14, 22, 29),
+    );
+  }
+}
+
+class ProgressBtn extends StatelessWidget {
+  const ProgressBtn({
+    super.key,
+    required this.onPressedFn,
+    required this.child
+  });
+
+  final dynamic onPressedFn;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ProgressButton(
+      onPressed: onPressedFn,
+      loadingType: ProgressButtonLoadingType.replace,
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondary),
+        foregroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.onSecondary),
+        textStyle: WidgetStatePropertyAll(
+          TextStyle(
+            fontWeight: FontWeight.bold
+          )
+        )
+      ),
+      type: ProgressButtonType.filled,
+      child: child,
     );
   }
 }

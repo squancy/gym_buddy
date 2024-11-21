@@ -61,6 +61,7 @@ class ValidateSignup {
 
       return (true, '');
     } catch(error) {
+      print(error);
       return (false, 'An unknown error occurred');
     }
   }
@@ -136,6 +137,7 @@ class InsertSignup {
       await users.doc(userID).set(data);
       await userSettings.doc(userID).set(dataProfile);
     } catch (e) {
+      print(e);
       return (false, 'An unknown error occurred', '');
     }
 

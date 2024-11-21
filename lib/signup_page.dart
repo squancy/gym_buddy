@@ -116,123 +116,111 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(SignupConsts.appBarText),
-        scrolledUnderElevation: 0,
-      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: LayoutBuilder(
-          builder: (context, constraints) => ListView(
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                      child: Text(
-                        SignupConsts.mainScreenText,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 34,
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ).withGradientOverlay(gradient: LinearGradient(colors: [
-                        Colors.white,
-                        Theme.of(context).colorScheme.primary,
-                      ])),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                      child: helpers.blackTextfield(
-                        context,
-                        'Username',
-                        _usernameController,
-                        _usernameFocusNode,
-                        isPassword: false,
-                        isEmail: false
-                      )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                      child: helpers.blackTextfield(
-                        context,
-                        'Email',
-                        _emailController,
-                        _emailFocusNode,
-                        isPassword: false,
-                        isEmail: true
-                      )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                      child: helpers.blackTextfield(
-                        context,
-                        'Password',
-                        _passwordController,
-                        _passwordFocusNode,
-                        isPassword: true,
-                        isEmail: false
-                      )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                      child: helpers.blackTextfield(
-                        context,
-                        'Confirm password',
-                        _passwordConfController,
-                        _passwordConfFocusNode,
-                        isPassword: true,
-                        isEmail: false
-                      )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 45,
-                            child: ProgressButton(
-                              onPressed: _signup,
-                              loadingType: ProgressButtonLoadingType.replace,
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
-                                foregroundColor: WidgetStateProperty.all(Colors.white),
-                                textStyle: WidgetStatePropertyAll(
-                                  TextStyle(
-                                    fontWeight: FontWeight.bold
-                                  )
-                                )
-                              ),
-                              type: ProgressButtonType.filled,
-                              child: Text(SignupConsts.appBarText),
-                            ),
+          builder: (context, constraints) => SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                        child: Text(
+                          SignupConsts.mainScreenText,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 34,
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
                           ),
-                          ValueListenableBuilder<String>(
-                            valueListenable: _signupStatus,
-                            builder: (BuildContext context, String value, Widget? child) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 0),
-                                child: Text(
-                                  value,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)
-                                ),
-                              );
-                            }
-                          ),
-                        ],
+                        ).withGradientOverlay(gradient: LinearGradient(colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.tertiary,
+                          Theme.of(context).colorScheme.primary,
+                        ])),
                       ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                        child: helpers.blackTextfield(
+                          context,
+                          'Username',
+                          _usernameController,
+                          _usernameFocusNode,
+                          isPassword: false,
+                          isEmail: false
+                        )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                        child: helpers.blackTextfield(
+                          context,
+                          'Email',
+                          _emailController,
+                          _emailFocusNode,
+                          isPassword: false,
+                          isEmail: true
+                        )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                        child: helpers.blackTextfield(
+                          context,
+                          'Password',
+                          _passwordController,
+                          _passwordFocusNode,
+                          isPassword: true,
+                          isEmail: false
+                        )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                        child: helpers.blackTextfield(
+                          context,
+                          'Confirm password',
+                          _passwordConfController,
+                          _passwordConfFocusNode,
+                          isPassword: true,
+                          isEmail: false
+                        )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 45,
+                              child: helpers.ProgressBtn(
+                                onPressedFn: _signup,
+                                child: Text(SignupConsts.appBarText)
+                              )
+                            ),
+                            ValueListenableBuilder<String>(
+                              valueListenable: _signupStatus,
+                              builder: (BuildContext context, String value, Widget? child) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 0),
+                                  child: Text(
+                                    value,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
+                                  ),
+                                );
+                              }
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           )
         ),
       ),
