@@ -10,6 +10,11 @@ web/
 windows/
 .dart_tool/
 
+.firebaserc
+.metadata
+analysis_options.yaml
+gym_buddy.iml
+
 # Miscellaneous
 *.class
 *.lock
