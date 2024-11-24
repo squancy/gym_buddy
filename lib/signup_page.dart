@@ -66,7 +66,7 @@ class _SignupPageState extends State<SignupPage> {
       setState(() { _signupStatus.value = errorMsg; });
       return;
     }
-    
+ 
     (isValid, errorMsg) = await signupValidator.userExists();
     if (!isValid) {
       setState(() { _signupStatus.value = errorMsg; });
@@ -88,13 +88,14 @@ class _SignupPageState extends State<SignupPage> {
     await prefs.setBool('loggedIn', true);
     await prefs.setString('userID', userID);
 
-    // Redirect user to main page
+    // On successful sign up redirect user to the home page
+    // Also delete every previous route so that he cannot go back with a right swipe
     setState(() {
-      Navigator.pushReplacement(
-        context,
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomePage()
-        )
+          builder: (context) => HomePage(),
+        ),
+        (Route<dynamic> route) => false,
       );
     });
   }
@@ -147,7 +148,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                        child: helpers.blackTextfield(
+                        child: helpers.BlackTextfield(
                           context,
                           'Username',
                           _usernameController,
@@ -158,7 +159,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                        child: helpers.blackTextfield(
+                        child: helpers.BlackTextfield(
                           context,
                           'Email',
                           _emailController,
@@ -169,7 +170,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                        child: helpers.blackTextfield(
+                        child: helpers.BlackTextfield(
                           context,
                           'Password',
                           _passwordController,
@@ -180,7 +181,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                        child: helpers.blackTextfield(
+                        child: helpers.BlackTextfield(
                           context,
                           'Confirm password',
                           _passwordConfController,

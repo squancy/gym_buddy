@@ -51,12 +51,9 @@ class ValidateSignup {
         return (false, 'This username is already taken');
       }
 
-      final QuerySnapshot allUsers = await users.get();
-      for (var doc in allUsers.docs) {
-        final Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-        if (userData['email'] == _email) {
-          return (false, 'This email address is already taken');
-        }
+      final QuerySnapshot usersWithEmail = await users.where('email', isEqualTo: _email).get();
+      if (usersWithEmail.docs.isNotEmpty) {
+        return (false, 'This email address is already taken');
       }
 
       return (true, '');

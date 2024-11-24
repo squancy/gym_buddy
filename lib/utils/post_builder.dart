@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'helpers.dart' as helpers;
 import 'time_ago_format.dart';
-import 'package:path/path.dart' as p;
 
 Widget buildInfoPart(field, post, context) {
   String val;
@@ -38,7 +37,6 @@ Widget buildInfoPart(field, post, context) {
 }
 
 Widget postBuilder(post, displayUsername, context) {
-  print(post['author_profile_pic_url'] == null);
   GetTimeAgo.setCustomLocaleMessages('en', CustomMessages());
   return Column(
     children: [
@@ -125,7 +123,7 @@ Widget postBuilder(post, displayUsername, context) {
       ),
       post['download_url_list'].isEmpty ? Container() : Padding(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-        child: helpers.horizontalImageViewer(
+        child: helpers.HorizontalImageViewer(
           showImages: true,
           images: post['download_url_list'],
           isPost: false,

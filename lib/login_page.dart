@@ -40,13 +40,14 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setBool('loggedIn', true);
     await prefs.setString('userID', userID);
 
-    // Successful login
+    // On successful login redirect user to the home page
+    // Also delete every previous route so that he cannot go back with a right swipe
     setState(() {
-      Navigator.pushReplacement(
-        context,
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomePage()
-        )
+          builder: (context) => HomePage(),
+        ),
+        (Route<dynamic> route) => false,
       );
     });
   }
@@ -92,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                    child: helpers.blackTextfield(
+                    child: helpers.BlackTextfield(
                       context,
                       'Email',
                       _emailController,
@@ -103,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                    child: helpers.blackTextfield(
+                    child: helpers.BlackTextfield(
                       context,
                       'Password',
                       _passwordController,

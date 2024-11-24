@@ -121,11 +121,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: Key('homepage'),
       extendBody: true,
       body: Center(
         child: [HomePageContent(), PostPage(), Container(), ProfilePage()][_selectedIndex],
       ),
-      bottomNavigationBar:             Padding(
+      bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(30),
         child: Container(
           decoration: BoxDecoration(
@@ -133,17 +134,19 @@ class _HomePageState extends State<HomePage> {
           ),
           clipBehavior: Clip.hardEdge,
           child: BottomBarFloating(
-                  items: items,
-                  backgroundColor: Colors.black,
-                  color: Theme.of(context).colorScheme.primary,
-                  colorSelected: Theme.of(context).colorScheme.tertiary,
-                  indexSelected: _selectedIndex,
-                  onTap: _onItemTapped,
-                  duration: Duration(milliseconds: 200),
-                  titleStyle: TextStyle(
-                    letterSpacing: 0
-                  ),
-                ),
+            items: items,
+            backgroundColor: Colors.black,
+            color: Theme.of(context).colorScheme.primary,
+            colorSelected: Theme.of(context).colorScheme.tertiary,
+            indexSelected: _selectedIndex,
+            onTap: _onItemTapped,
+            duration: Duration(milliseconds: 200),
+            titleStyle: TextStyle(
+              letterSpacing: 0,
+            ),
+            pad: 1,
+            paddingVertical: 10,
+          ),
         ),
       ),
     );

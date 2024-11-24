@@ -4,28 +4,14 @@ import 'login_page.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
 import 'consts/common_consts.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animate_gradient/animate_gradient.dart';
+import 'utils/helpers.dart' as helpers;
 
-void main() async {
+Future<void> main() async {
   // Firebase init START
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await helpers.firebaseInit(test: false);
   // Firebase init END
-
-  if (GlobalConsts.TEST) {
-    try {
-      FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
-    } catch (e) {
-      // ignore: avoid_print
-      print(e);
-    }
-  }
 
   runApp(const GymBuddyApp());
 }

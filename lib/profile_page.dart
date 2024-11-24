@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gym_buddy/main.dart';
 import 'consts/common_consts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -45,7 +46,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
   bool _showFile = false;
 
   Future<void> _uploadPic(File file, String? userID) async {
-    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, 100, "profile_pics/$userID");
+    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, 200, "profile_pics/$userID");
     final settingsDocRef = db.collection('user_settings').doc(userID);
     try {
       await settingsDocRef.update({
@@ -164,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
       var userData = await db.collection('user_settings').doc(userID).get();
       var userPostDocs = userPosts.docs;
       if (_isFirst) {
-        userPostDocs.add(_lastVisible);
+        userPostDocs.insert(0, _lastVisible);
       }
       _isFirst = false;
       _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[userPosts.docs.length - 1];
@@ -177,7 +178,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print(e);
       return [];
-
     }
     return res;
   }
@@ -243,6 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
         preferredSize: Size.fromHeight(0),
         child: AppBar(
           scrolledUnderElevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
         )
       ),
       body: FutureBuilder(
@@ -389,7 +390,26 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text("@$username")
                             ],
                           ),),
-                          ProfilePhoto()
+                          Column(
+                            children: [
+                              ProfilePhoto(),
+                              SizedBox(height: 10,),
+                              GestureDetector(
+                                onTap: () async {
+                                  await helpers.logout();
+                                  setState(() {
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                        builder: (context) => WelcomePage(),
+                                      ),
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  });
+                                },
+                                child: Icon(Icons.logout_rounded, size: 20, color: Theme.of(context).colorScheme.primary,),
+                              )
+                            ],
+                          )
                         ],
                       ),
                     )
