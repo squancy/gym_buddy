@@ -71,8 +71,27 @@ class MainButton extends StatelessWidget {
   }
 }
 
-class WelcomePage extends StatelessWidget {
+class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
+
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin {
+  late AnimationController _anim_controller;
+
+  @override
+  void initState() {
+    _anim_controller = AnimationController(duration: Duration(seconds: 4), vsync: this)..repeat();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // _anim_controller.dispose();
+    super.dispose();
+  }
 
   Future<bool> _loggedIn() async {
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
@@ -115,6 +134,7 @@ class WelcomePage extends StatelessWidget {
                 Theme.of(context).colorScheme.primary,
                 Theme.of(context).colorScheme.tertiary,
               ],
+              controller: _anim_controller,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
