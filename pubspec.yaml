@@ -57,6 +57,11 @@ dependencies:
   dbcrypt: ^2.0.0
   animate_gradient: ^0.0.3
   awesome_bottom_bar: ^1.2.4
+  animated_gradient: ^0.0.3
+  flutter_moving_background:
+    git:
+      url: https://github.com/squancy/moving_background
+      ref: main
 
 dev_dependencies:
   flutter_test:

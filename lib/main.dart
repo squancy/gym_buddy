@@ -5,8 +5,9 @@ import 'signup_page.dart';
 import 'home_page.dart';
 import 'consts/common_consts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:animate_gradient/animate_gradient.dart';
 import 'utils/helpers.dart' as helpers;
+import 'package:flutter_moving_background/enums/animation_types.dart';
+import 'package:flutter_moving_background/flutter_moving_background.dart';
 
 Future<void> main() async {
   // Firebase init START
@@ -71,27 +72,8 @@ class MainButton extends StatelessWidget {
   }
 }
 
-class WelcomePage extends StatefulWidget {
+class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
-
-  @override
-  State<WelcomePage> createState() => _WelcomePageState();
-}
-
-class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin {
-  late AnimationController _anim_controller;
-
-  @override
-  void initState() {
-    _anim_controller = AnimationController(duration: Duration(seconds: 4), vsync: this)..repeat();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // _anim_controller.dispose();
-    super.dispose();
-  }
 
   Future<bool> _loggedIn() async {
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
@@ -119,22 +101,15 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
           );
         } else {
           return Scaffold(
-            body: AnimateGradient(
-              primaryBegin: Alignment.topLeft,
-              primaryEnd: Alignment.bottomLeft,
-              secondaryBegin: Alignment.bottomLeft,
-              secondaryEnd: Alignment.topRight,
-              primaryColors: [
-                Theme.of(context).colorScheme.tertiary,
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.tertiary,
+            body: MovingBackground(
+              animationType: AnimationType.translation,
+              backgroundColor: Colors.black,
+              circles: [
+                MovingCircle(color: Theme.of(context).colorScheme.primary),
+                MovingCircle(color: Theme.of(context).colorScheme.primary),
+                MovingCircle(color: Theme.of(context).colorScheme.primary),
+                MovingCircle(color: Theme.of(context).colorScheme.primary),
               ],
-              secondaryColors:  [
-                Theme.of(context).colorScheme.tertiary,
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.tertiary,
-              ],
-              controller: _anim_controller,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -144,7 +119,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.surface
+                        color: Colors.white
                       )
                     ),
                     const SizedBox(height: 60),
