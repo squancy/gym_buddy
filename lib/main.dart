@@ -4,16 +4,13 @@ import 'login_page.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
 import 'consts/common_consts.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:animate_gradient/animate_gradient.dart';
+import 'utils/helpers.dart' as helpers;
 
-void main() async {
+Future<void> main() async {
   // Firebase init START
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await helpers.firebaseInit(test: false);
   // Firebase init END
 
   runApp(const GymBuddyApp());
@@ -30,16 +27,17 @@ class GymBuddyApp extends StatelessWidget {
       title: 'Gym Buddy App',
       theme: ThemeData(
         // fontFamily: 'Rethink Sans',
+        brightness: Brightness.dark,
         useMaterial3: true,
-        colorScheme: gymBuddyColorScheme
+        colorSchemeSeed: Colors.blue.shade900
       ),
       home: const WelcomePage(),
     );
   }
 }
 
-class BigRedButton extends StatelessWidget {
-  const BigRedButton({
+class MainButton extends StatelessWidget {
+  const MainButton({
     super.key,
     required this.displayText,
     required this.onPressedFunc,
@@ -57,12 +55,16 @@ class BigRedButton extends StatelessWidget {
       style: ButtonStyle(
         padding: WidgetStateProperty.all<EdgeInsets>(
           const EdgeInsets.fromLTRB(30, 10, 30, 10)
-        )
+        ),
+        backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.surface),
+        minimumSize: WidgetStateProperty.all(Size(150, 50)) 
       ),
       child: Text(
         displayText,
         style: TextStyle(
-          fontSize: fontSize
+          fontSize: fontSize,
+          color: Theme.of(context).colorScheme.onSurface,
+          fontWeight: FontWeight.bold
         )
       )
     );
@@ -97,35 +99,57 @@ class WelcomePage extends StatelessWidget {
           );
         } else {
           return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(HomeConsts.appTitle, style: TextStyle(fontSize: 42)),
-                  const SizedBox(height: 60),
-                  BigRedButton(
-                    displayText: HomeConsts.loginButtonTitle,
-                    onPressedFunc: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
-                    },
-                    fontSize: 18,
-                  ),
-                  const SizedBox(height: 30),
-                  BigRedButton(
-                    displayText: HomeConsts.signupButtonTitle,
-                    onPressedFunc: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SignupPage()),
-                      );
-                    },
-                    fontSize: 18,
-                  ) 
-                ],
+            body: AnimateGradient(
+              primaryBegin: Alignment.topLeft,
+              primaryEnd: Alignment.bottomLeft,
+              secondaryBegin: Alignment.bottomLeft,
+              secondaryEnd: Alignment.topRight,
+              primaryColors: [
+                Theme.of(context).colorScheme.tertiary,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.tertiary,
+              ],
+              secondaryColors:  [
+                Theme.of(context).colorScheme.tertiary,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.tertiary,
+              ],
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [Text(
+                      HomeConsts.appTitle,
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.surface
+                      )
+                    ),
+                    const SizedBox(height: 60),
+                    MainButton(
+                      displayText: HomeConsts.loginButtonTitle,
+                      onPressedFunc: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginPage()),
+                        );
+                      },
+                      fontSize: 18,
+                    ),
+                    const SizedBox(height: 30),
+                    MainButton(
+                      displayText: HomeConsts.signupButtonTitle,
+                      onPressedFunc: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SignupPage()),
+                        );
+                      },
+                      fontSize: 18,
+                    ) 
+                  ],
+                ),
               ),
             ),
           );

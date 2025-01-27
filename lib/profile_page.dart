@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gym_buddy/main.dart';
 import 'consts/common_consts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'utils/photo_upload_popup.dart';
 import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
 import 'utils/post_builder.dart' as post_builder;
+import 'package:image_fade/image_fade.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
@@ -45,7 +46,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
   bool _showFile = false;
 
   Future<void> _uploadPic(File file, String? userID) async {
-    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, 100, "profile_pics/$userID");
+    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, 200, "profile_pics/$userID");
     final settingsDocRef = db.collection('user_settings').doc(userID);
     try {
       await settingsDocRef.update({
@@ -97,28 +98,31 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
         if (snapshot.hasData) {
           dynamic bgImage;
           if (snapshot.data?['type'] == 'default') {
-            bgImage = Image.asset(snapshot.data?['path'] as String, width: 80, height: 80, fit: BoxFit.cover);
+            bgImage = AssetImage(snapshot.data?['path'] as String);
           } else {
-            bgImage = FadeInImage.memoryNetwork(
-              placeholder: kTransparentImage,
-              image: snapshot.data?['path'] as String,
-              height: 80,
-              width: 80,
-              fit: BoxFit.cover,
-              fadeInDuration: Duration(milliseconds: 250),
-            );
+            bgImage = NetworkImage(snapshot.data?['path'] as String);
           }
           return GestureDetector(
             onDoubleTap: uploadPopup.showOptions,
             child: Builder(
               builder: (context) {
-                return Stack(
-                  children: [
-                    helpers.ProfilePicPlaceholder(radius: 40,),
-                    ClipOval(
-                      child: _showFile ? Image.file(_image, width: 80, height: 80, fit: BoxFit.cover,) : bgImage,
-                    )
-                  ]
+                return SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: ClipOval(
+                    child: FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                      child: ImageFade(
+                        image: _showFile ? FileImage(_image) : bgImage,
+                        placeholder: Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.black,
+                        ),
+                      )
+                    ),
+                  ),
                 );
               }
             ),
@@ -161,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
       var userData = await db.collection('user_settings').doc(userID).get();
       var userPostDocs = userPosts.docs;
       if (_isFirst) {
-        userPostDocs.add(_lastVisible);
+        userPostDocs.insert(0, _lastVisible);
       }
       _isFirst = false;
       _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[userPosts.docs.length - 1];
@@ -174,7 +178,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print(e);
       return [];
-
     }
     return res;
   }
@@ -211,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage> {
     };
   }
 
-  void _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
+  Future<void> _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
     if (Characters(newData).length > maxLen || (Characters(newData).isEmpty && !isBio)) {
       return;
     }
@@ -240,46 +243,47 @@ class _ProfilePageState extends State<ProfilePage> {
         preferredSize: Size.fromHeight(0),
         child: AppBar(
           scrolledUnderElevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
         )
       ),
       body: FutureBuilder(
         future: _getUserDataFuture,
         builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
+          if (snapshot.hasData && snapshot.data != null && snapshot.connectionState == ConnectionState.done) {
             final Map<String, dynamic> data = snapshot.data as Map<String, dynamic>;
             final String username = data['username'];
             var displayUsername = data['displayUsername'];
             var bio = data['bio'];
 
-            void resetToText(tap) {
+            Future<void> resetToText(tap) async {
               if (_toggleEditDUname.showEdit.value) {
                 displayUsername = _controller.text;
-                _saveNewData(
+                _toggleEditDUname.makeUneditable();
+                await _saveNewData(
                   displayUsername,
                   ValidateSignupConsts.MAX_USERNAME_LEN,
                   'display_username',
                   isBio: false
                 );
-                _toggleEditDUname.makeUneditable();
               }
             } 
 
-            void resetToTextBio(tap) {
+            Future<void> resetToTextBio(tap) async {
               if (_toggleEditBio.showEdit.value) {
                 bio = _bioController.text;
-                _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
                 _toggleEditBio.makeUneditable();
+                _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
               }
             }
 
-            void finishBioEdit() {
-              _saveNewData(
+            Future<void> finishBioEdit() async {
+              resetToTextBio(null);             
+              await _saveNewData(
                 _bioController.text,
                 ProfileConsts.MAX_BIO_LEN,
                 'bio',
                 isBio: true
               );
-              resetToText(null);             
             }
 
             Widget buildBioField({required bool autofocus}) {
@@ -329,13 +333,16 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                             TapRegion(
-                              onTapOutside: (tap) {
+                              onTapOutside: (tap) async {
                                 if (_toggleEditDUname.showEdit.value) {
+                                  await resetToText(tap);
+                                  /*
                                   setState(() {
+                                    _getUserDataFuture = _getUserData();
                                     _lastVisible = _firstVisible;
                                     _isFirst = true;
                                   });
-                                  resetToText(tap);
+                                  */
                                 }
                               },
                               child: GestureDetector(
@@ -363,6 +370,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                           letterSpacing: 0,
                                         ),
                                         onSubmitted: resetToText,
+                                        onChanged: (value) {
+                                          displayUsername = _controller.value;
+                                        },
                                       );
                                     } else {
                                       return Padding(
@@ -380,7 +390,26 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text("@$username")
                             ],
                           ),),
-                          ProfilePhoto()
+                          Column(
+                            children: [
+                              ProfilePhoto(),
+                              SizedBox(height: 10,),
+                              GestureDetector(
+                                onTap: () async {
+                                  await helpers.logout();
+                                  setState(() {
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                        builder: (context) => WelcomePage(),
+                                      ),
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  });
+                                },
+                                child: Icon(Icons.logout_rounded, size: 20, color: Theme.of(context).colorScheme.primary,),
+                              )
+                            ],
+                          )
                         ],
                       ),
                     )
@@ -394,11 +423,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         _toggleEditBio.makeEditable();
                       }
                       return TapRegion(
-                        onTapOutside: (tap) {
+                        onTapOutside: (tap) async {
                           if (_bioController.text.isEmpty) {
                             FocusScope.of(context).unfocus();      
                           } else {
-                            resetToTextBio(tap);
+                            await resetToTextBio(tap);
                           }
                         },
                         child: GestureDetector(
