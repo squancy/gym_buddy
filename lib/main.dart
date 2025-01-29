@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/helpers.dart' as helpers;
 import 'package:flutter_moving_background/enums/animation_types.dart';
 import 'package:flutter_moving_background/flutter_moving_background.dart';
+import 'package:moye/moye.dart';
 
 Future<void> main() async {
   // Firebase init START
@@ -55,10 +56,18 @@ class MainButton extends StatelessWidget {
       onPressed: onPressedFunc,
       style: ButtonStyle(
         padding: WidgetStateProperty.all<EdgeInsets>(
-          const EdgeInsets.fromLTRB(30, 10, 30, 10)
+          const EdgeInsets.fromLTRB(30, 10, 30, 10),
+        ),
+        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+          side: BorderSide(
+            color: Colors.white24,
+            width: 2,
+            style: BorderStyle.solid
+          ),
+          borderRadius: BorderRadius.circular(50))
         ),
         backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.surface),
-        minimumSize: WidgetStateProperty.all(Size(150, 50)) 
+        minimumSize: WidgetStateProperty.all(Size(150, 50))
       ),
       child: Text(
         displayText,
@@ -105,8 +114,8 @@ class WelcomePage extends StatelessWidget {
               animationType: AnimationType.translation,
               backgroundColor: Colors.black,
               circles: [
-                MovingCircle(color: Theme.of(context).colorScheme.primary),
-                MovingCircle(color: Theme.of(context).colorScheme.primary),
+                MovingCircle(color: Theme.of(context).colorScheme.tertiary),
+                MovingCircle(color: Theme.of(context).colorScheme.tertiary),
                 MovingCircle(color: Theme.of(context).colorScheme.primary),
                 MovingCircle(color: Theme.of(context).colorScheme.primary),
               ],
@@ -132,6 +141,9 @@ class WelcomePage extends StatelessWidget {
                         );
                       },
                       fontSize: 18,
+                    ).withGlowContainer(
+                      color: Colors.white24,
+                      blurRadius: 20
                     ),
                     const SizedBox(height: 30),
                     MainButton(
@@ -143,7 +155,10 @@ class WelcomePage extends StatelessWidget {
                         );
                       },
                       fontSize: 18,
-                    ) 
+                    ).withGlowContainer(
+                      color: Colors.white24,
+                      blurRadius: 20
+                    )
                   ],
                 ),
               ),
