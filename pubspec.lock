@@ -46,6 +46,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  animated_gradient:
+    dependency: "direct main"
+    description:
+      name: animated_gradient
+      sha256: "472473a6f3b9e54979169b24bff53394e49bcad5552d79db8e2cca60f6fd086f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   archive:
     dependency: transitive
     description:
@@ -328,6 +336,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
+  flutter_moving_background:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "55f7a2f38ea7edcc8c2bdd74531a3790524cc197"
+      url: "https://github.com/squancy/moving_background"
+    source: git
+    version: "0.0.5"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -560,10 +577,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.7"
   leak_tracker:
     dependency: transitive
     description:

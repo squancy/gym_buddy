@@ -23,7 +23,7 @@ class HomeConsts {
 class ForgotPasswordConsts {
   static const String appBarText = 'Forgot password';
   static const String mainScreenText = 'New password';
-  static const String infoText = 'We will send a temprary password to your email';
+  static const String infoText = 'We will send a temporary password to your email';
   static const String redBtnText = 'Send password';
 }
 
