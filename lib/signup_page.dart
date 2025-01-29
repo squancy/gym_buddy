@@ -4,9 +4,9 @@ import 'handlers/handle_signup.dart';
 import 'home_page.dart';
 import 'package:moye/moye.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:moye/widgets/gradient_overlay.dart';
 import 'utils/helpers.dart' as helpers;
 import 'package:geolocator/geolocator.dart';
-import 'package:moye/widgets/gradient_overlay.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -75,7 +75,7 @@ class _SignupPageState extends State<SignupPage> {
 
     // At this point the validation was successful
     final signupInsert = InsertSignup(email, password, username);
-    var userID;
+    String userID;
     (isValid, errorMsg, userID) = await signupInsert.insertToDB();
     if (!isValid) {
       setState(() { _signupStatus.value = errorMsg; });
