@@ -63,6 +63,7 @@ dependencies:
     git:
       url: https://github.com/squancy/moving_background
       ref: main
+  csv: ^6.0.0
 
 
 dev_dependencies:

@@ -40,5 +40,5 @@ class ProfileConsts {
 
 class GlobalConsts {
   static const spinkit = CircularProgressIndicator.adaptive();
-  static const bool TEST = true;
+  static const bool TEST = false;
 }
