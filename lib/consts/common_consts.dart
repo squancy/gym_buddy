@@ -28,6 +28,17 @@ class ForgotPasswordConsts {
   static const String redBtnText = 'Send password';
 }
 
+class PostPageConsts {
+  static const String errorMessageText =   'An unknown error occurred';
+  static const String appBarText = 'Find a gym buddy';
+  static const String textBarText = 'Looking for a buddy?';
+  static const String dayTypeText = 'What are you going to do?';
+  static const String gymTypeText = 'Which gym are you going to?';
+  static const String timeTypeText = 'What time?';
+  static const String photosUploadText = 'Upload photos';
+  static const String postButtonText = 'Post';
+}
+
 // Signup page validation [validate_signup.dart]
 class ValidateSignupConsts {
   static const int MAX_USERNAME_LEN = 100;
