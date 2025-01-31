@@ -15,7 +15,7 @@ Future<void> main() async {
   // Firebase init START
   await helpers.firebaseInit(test: false);
   // Firebase init END
-  SystemChrome.setPreferredOrientations([
+  SystemChrome.setPreferredOrientations([ // Lock the app to portrait mode
     DeviceOrientation.portraitUp,
   ]);
 
