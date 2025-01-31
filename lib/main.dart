@@ -28,11 +28,12 @@ class GymBuddyApp extends StatelessWidget {
   const GymBuddyApp({super.key});
   static const ColorScheme gymBuddyColorScheme = GlobalThemeData.defaultColorScheme;
 
+// Main app widget
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Gym Buddy App',
+      title: HomeConsts.appTitle, // Gym buddy app  
       theme: ThemeData(
         // fontFamily: 'Rethink Sans',
         brightness: Brightness.dark,
@@ -89,7 +90,7 @@ class MainButton extends StatelessWidget {
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
-
+ /// Check if the user is logged in
   Future<bool> _loggedIn() async {
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
     bool loggedIn = true;
@@ -116,6 +117,7 @@ class WelcomePage extends StatelessWidget {
           );
         } else {
           return Scaffold(
+            // 4 moving circles on the screen
             body: MovingBackground(
               animationType: AnimationType.translation,
               backgroundColor: Colors.black,
@@ -130,20 +132,21 @@ class WelcomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [Text(
-                      HomeConsts.appTitle,
+                      HomeConsts.appTitle, // Gym buddy app
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.bold,
                         color: Colors.white
                       )
                     ),
+                    // Log in button
                     const SizedBox(height: 60),
                     MainButton(
-                      displayText: HomeConsts.loginButtonTitle,
+                      displayText: HomeConsts.loginButtonTitle, // Log in
                       onPressedFunc: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const LoginPage()),
+                          MaterialPageRoute(builder: (context) => const LoginPage()), // Navitage to login page
                         );
                       },
                       fontSize: 18,
@@ -151,13 +154,14 @@ class WelcomePage extends StatelessWidget {
                       color: Colors.white24,
                       blurRadius: 20
                     ),
+                    // Sign up button
                     const SizedBox(height: 30),
                     MainButton(
-                      displayText: HomeConsts.signupButtonTitle,
+                      displayText: HomeConsts.signupButtonTitle, // Sign up
                       onPressedFunc: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const SignupPage()),
+                          MaterialPageRoute(builder: (context) => const SignupPage()), // Navigate to signup page
                         );
                       },
                       fontSize: 18,
