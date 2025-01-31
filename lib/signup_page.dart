@@ -15,17 +15,17 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
-  final FocusNode _passwordConfFocusNode = FocusNode();
-  final FocusNode _usernameFocusNode = FocusNode();
+  final TextEditingController _emailController = TextEditingController(); // Email controller
+  final TextEditingController _passwordController = TextEditingController(); // Password controller
+  final TextEditingController _passwordConfController = TextEditingController(); // Password confirmation controller
+  final TextEditingController _usernameController = TextEditingController(); // Username controller
+  final FocusNode _emailFocusNode = FocusNode(); // Email focus node
+  final FocusNode _passwordFocusNode = FocusNode();   // Password focus node
+  final FocusNode _passwordConfFocusNode = FocusNode(); // Password confirmation focus node
+  final FocusNode _usernameFocusNode = FocusNode(); // Username focus node
 
   final ValueNotifier<String> _signupStatus = ValueNotifier<String>("");
-
+/// Requests the user's position
   Future<void> _requestPosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -47,7 +47,7 @@ class _SignupPageState extends State<SignupPage> {
       return;
     } 
   }
-
+/// Signs up the user
   Future<void> _signup() async {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text;
@@ -99,9 +99,9 @@ class _SignupPageState extends State<SignupPage> {
       );
     });
   }
-
+/// Dispose of the controllers and focus nodes
   @override
-  void dispose() {
+  void dispose() { 
     _emailController.dispose();
     _passwordController.dispose();
     _passwordConfController.dispose();
@@ -113,7 +113,7 @@ class _SignupPageState extends State<SignupPage> {
     _usernameFocusNode.dispose();
     super.dispose();
   }
-
+// Build the signup page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +133,7 @@ class _SignupPageState extends State<SignupPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: Text(
-                          SignupConsts.mainScreenText,
+                          SignupConsts.mainScreenText, // "Create account"
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 34,
@@ -146,50 +146,55 @@ class _SignupPageState extends State<SignupPage> {
                           Theme.of(context).colorScheme.primary,
                         ])),
                       ),
+                      // Username textfield
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: helpers.BlackTextfield(
                           context,
-                          'Username',
+                          SignupConsts.usernameText, // "Username"
                           _usernameController,
                           _usernameFocusNode,
                           isPassword: false,
                           isEmail: false
                         )
                       ),
+                      // Email textfield
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: helpers.BlackTextfield(
                           context,
-                          'Email',
+                          SignupConsts.emailText, // "Email"
                           _emailController,
                           _emailFocusNode,
                           isPassword: false,
                           isEmail: true
                         )
                       ),
+                      // Password textfield
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: helpers.BlackTextfield(
                           context,
-                          'Password',
+                          SignupConsts.passwordText, // "Password"
                           _passwordController,
                           _passwordFocusNode,
                           isPassword: true,
                           isEmail: false
                         )
                       ),
+                      // Password confirmation textfield
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: helpers.BlackTextfield(
                           context,
-                          'Confirm password',
+                          SignupConsts.passwordConfText, // "Confirm password"
                           _passwordConfController,
                           _passwordConfFocusNode,
                           isPassword: true,
                           isEmail: false
                         )
                       ),
+                      // Signup button                          
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: Column(
@@ -198,7 +203,7 @@ class _SignupPageState extends State<SignupPage> {
                               height: 45,
                               child: helpers.ProgressBtn(
                                 onPressedFn: _signup,
-                                child: Text(SignupConsts.appBarText)
+                                child: Text(SignupConsts.appBarText) // "Sign up"
                               )
                             ),
                             ValueListenableBuilder<String>(

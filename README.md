@@ -1,3 +1,5 @@
 # gym_buddy
 
-it's like tinder but ugly people can also match
+A nonsense app that helps you find a gym buddy.
+It's not really useful but who cares, it's a personal project after all.
+Written in Flutter. Still under development.

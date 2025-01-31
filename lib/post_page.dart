@@ -12,10 +12,12 @@ import 'utils/helpers.dart' as helpers;
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as datepicker;
 import 'package:intl/intl.dart';
 import 'package:moye/moye.dart';
+import 'consts/common_consts.dart';
 
-final FirebaseFirestore db = FirebaseFirestore.instance;
-final storageRef = FirebaseStorage.instance.ref();
+final FirebaseFirestore db = FirebaseFirestore.instance; // Get firestore instance
+final storageRef = FirebaseStorage.instance.ref(); // Get storage instance
 
+/// Get all documents from collectionsnapshot and return a list of strings
 Future<List<String>> getAllDocuments(CollectionReference collection) async {
   QuerySnapshot querySnapshot = await collection.get();
   return querySnapshot.docs
@@ -34,14 +36,14 @@ class _PostPageState extends State<PostPage> {
   @override
   void initState() {
     super.initState();
-    getAllDocuments(db.collection('gyms/budapest/gyms')).then((arg) {
+    getAllDocuments(db.collection('gyms/budapest/gyms')).then((arg) { // Get all gyms in Budapest //TODO - Have more gyms outside Budapest
       if (mounted) {
         setState(() {
           _gyms = arg;
         });
       }
     });
-    getAllDocuments(db.collection('activities')).then((arg) {
+    getAllDocuments(db.collection('activities')).then((arg) { // Get all activities
       if (mounted) {
         setState(() {
           _dayTypes = arg;
@@ -56,7 +58,7 @@ class _PostPageState extends State<PostPage> {
   String? _dayTypeVal = '';
   String? _gymVal = '';
   bool _showImages = false;
-  final _picker = ImagePicker();
+  final _picker = ImagePicker(); 
   List<File> _selectedImages = [];
   final _controller = TextEditingController();
   String _errorMsg = '';
@@ -64,6 +66,7 @@ class _PostPageState extends State<PostPage> {
   DateTime? _datetimeVal;
   double? _progress = null;
 
+/// Select images from source (camera or gallery)
   void _selectFromSource(ImageSource sourceType) async {
     final pickedFiles = await _picker.pickMultiImage(limit: 5);
     if (pickedFiles.isNotEmpty) {
@@ -74,6 +77,7 @@ class _PostPageState extends State<PostPage> {
     }
   }
 
+/// Create a new post
   Future<void> createNewPost(
     List<File> images,
     String postText,
@@ -99,6 +103,7 @@ class _PostPageState extends State<PostPage> {
     List<String> downloadURLs = [];
     List<String> filenames = [];
 
+/// Push to db the post
     Future<void> pushToDB() async {
       // Push to db
       final postsDocRef = db.collection('posts').doc(postID);
@@ -117,7 +122,7 @@ class _PostPageState extends State<PostPage> {
         await postsDocRef.set(data);
       } catch (e) {
         setState(() {
-          _errorMsg = 'An unknown error occurred';
+          _errorMsg = PostPageConsts.errorMessageText; // 'An unknown error occurred'
           _hasError = true;
         });
         return;
@@ -161,7 +166,7 @@ class _PostPageState extends State<PostPage> {
       pushToDB();
     }
   }
-
+ // Build the post page
   @override
   Widget build(BuildContext context) {
     final uploadPhoto = PhotoUploadPopup(context, _selectFromSource);
@@ -182,10 +187,11 @@ class _PostPageState extends State<PostPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // 'Find a gym buddy' text
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                     child: Text(
-                      'Find a gym buddy',
+                      PostPageConsts.appBarText, // 'Find a gym buddy'
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
@@ -208,7 +214,7 @@ class _PostPageState extends State<PostPage> {
                           },
                           autofocus: true,
                           decoration: const InputDecoration(
-                            hintText: 'Looking for a buddy?',
+                            hintText: PostPageConsts.textBarText, // 'Looking for a buddy?'
                             hintStyle: TextStyle(
                               color: Colors.grey
                             ),
@@ -221,10 +227,11 @@ class _PostPageState extends State<PostPage> {
                       ],
                     ),
                   ),
+                  // Daytype scrollable dropdown menu
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: CustomDropdown<String>(
-                      hintText: 'What are you going to do?',  
+                      hintText: PostPageConsts.dayTypeText, // 'What are you going to do?'
                       items: _dayTypes,
                       onChanged: (p0) {
                         _dayTypeVal = p0;
@@ -240,10 +247,11 @@ class _PostPageState extends State<PostPage> {
                       ),
                     ),
                   ),
+                  // Gym scrollable dropdown menu
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: CustomDropdown<String>.search(
-                      hintText: 'Which gym are you going to?',  
+                      hintText: PostPageConsts.gymTypeText, // 'Which gym are you going to?'
                       items: List<String>.from(_gyms),
                       onChanged: (p0) {
                         _gymVal = p0;
@@ -263,6 +271,7 @@ class _PostPageState extends State<PostPage> {
                       ),
                     ),
                   ),
+                  // Date and time picker
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                     child: Row(
@@ -298,16 +307,17 @@ class _PostPageState extends State<PostPage> {
                                 backgroundColor: WidgetStateProperty.all(Colors.black),
                                 foregroundColor: _datetimeVal != null ? WidgetStateProperty.all(Colors.white) : WidgetStateProperty.all(Colors.grey) 
                               ),
-                              label: _datetimeVal != null ? Text(DateFormat('MM-dd kk:mm').format(_datetimeVal as DateTime)) : Text('What time?')
+                              label: _datetimeVal != null ? Text(DateFormat('MM-dd kk:mm').format(_datetimeVal as DateTime)) : Text(PostPageConsts.timeTypeText), // 'What time?'
                             ),
                           ),
                         ),
                         Expanded(
+                          // Upload photos button
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                             child: FilledButton.icon(
                               onPressed: uploadPhoto.showOptions,
-                              label: Text('Upload photos'),
+                              label: Text(PostPageConsts.photosUploadText), // 'Upload photos'
                               icon: Icon(Icons.add_a_photo_rounded, size: 18,),
                               style: ButtonStyle(
                                 backgroundColor: WidgetStateProperty.all(Colors.black),
@@ -319,6 +329,7 @@ class _PostPageState extends State<PostPage> {
                       ],
                     ),
                   ),
+                  // Show selected images
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: helpers.HorizontalImageViewer(
@@ -327,7 +338,7 @@ class _PostPageState extends State<PostPage> {
                       isPost: true
                     )
                   ),
-                  _progress == null ? Padding(
+                  _progress == null ? Padding( // Post button
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: SizedBox(
                       height: 45,
@@ -341,7 +352,7 @@ class _PostPageState extends State<PostPage> {
                             _datetimeVal
                           );
                         },
-                        child: Text('Post')
+                        child: Text(PostPageConsts.postButtonText), // 'Post'
                       )
                     ),
                   ) : Container(),
