@@ -12,8 +12,8 @@ import 'utils/post_builder.dart' as post_builder;
 import 'package:image_fade/image_fade.dart';
 import 'consts/common_consts.dart' as consts;
 
-final FirebaseFirestore db = FirebaseFirestore.instance;
-final storageRef = FirebaseStorage.instance.ref();
+final FirebaseFirestore db = FirebaseFirestore.instance; // Get Firestore instance
+final storageRef = FirebaseStorage.instance.ref(); // Get Firebase Storage instance
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -33,7 +33,7 @@ class Toggle {
     showEdit.value = false;
   }
 }
-
+// Profile photo widget
 class ProfilePhoto extends StatefulWidget {
   const ProfilePhoto({super.key});
 
@@ -45,9 +45,9 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
   var _image = File(ProfileConsts.defaultProfilePicPath);
   final _picker = ImagePicker();
   bool _showFile = false;
-
+/// Upload the profile picture to Firebase Storage
   Future<void> _uploadPic(File file, String? userID) async {
-    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, 200, "profile_pics/$userID");
+    var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, ProfileConsts.profilePicSize, "profile_pics/$userID"); // Upload the image to Firebase Storage, picsize is default 200px
     final settingsDocRef = db.collection('user_settings').doc(userID);
     try {
       await settingsDocRef.update({
@@ -58,7 +58,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
       // ...
     }
   }
-
+/// Selecting an image from the gallery or camera
   void _selectFromSource(ImageSource sourceType) async {
     final pickedFile = await _picker.pickImage(source: sourceType);
     final userID = await helpers.getUserID();
@@ -73,7 +73,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
       }
     });
   }
-
+/// Get the profile picture URL
   Future<String> _getProfilePicURL() async {
     final userID = await helpers.getUserID();
     final settingsDocRef = db.collection('user_settings').doc(userID);
@@ -81,7 +81,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
     final userSettings = usettings.data() as Map<String, dynamic>;
     return userSettings['profile_pic_url'];
   }
-
+/// Get the profile picture file type(= url if not empty) and path (default if url is empty)
   Future<Map<String, String>> _getProfilePicFile() async {
     final profilePicURL = await _getProfilePicURL();
     if (profilePicURL.isEmpty) {
@@ -90,6 +90,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
     return {'type': 'url', 'path': profilePicURL};
   }
 
+// Build the profile photo widget
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, String>>(
@@ -167,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
   }
-
+/// Get the posts by the user from db
   Future<List<Map<String, dynamic>>> _getPostsByUser() async {
     if (_lastVisible == null) return [];
     String? userID = await helpers.getUserID();
@@ -198,6 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return _res;
   }
 
+/// Set the last visible post to the first post
   Future<void> _setLastVisibleToFirst(userID) async {
     var userPosts = await db.collection('posts')
       .where('author', isEqualTo: userID)
@@ -206,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[0];
     _firstVisible = _lastVisible;
   }
-
+ /// Get the user data from db
   Future<Map<String, dynamic>> _getUserData() async {
     // First get the ID of the user currently logged in 
     final userID = await helpers.getUserID();
@@ -231,6 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
     };
   }
 
+/// Save the new data to the db
   Future<void> _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
     if (Characters(newData).length > maxLen || (Characters(newData).isEmpty && !isBio)) {
       return;
@@ -245,14 +248,14 @@ class _ProfilePageState extends State<ProfilePage> {
       // ...
     }
   }
-
+// Dispose the controllers
   @override
   void dispose() {
     _controller.dispose();
     _bioController.dispose();
     super.dispose();
   } 
-
+// Build the profile page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -284,7 +287,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               }
             } 
-
+            /// Reset the bio to text
             Future<void> resetToTextBio(tap) async {
               if (_toggleEditBio.showEdit.value) {
                 bio = _bioController.text;
@@ -292,7 +295,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
               }
             }
-
+            /// Finish the bio edit
             Future<void> finishBioEdit() async {
               resetToTextBio(null);             
               await _saveNewData(
@@ -394,6 +397,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         },
                                       );
                                     } else {
+                                      // Username display
                                       return Padding(
                                         padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                                         child: Text(displayUsername, style: TextStyle(
@@ -410,6 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),),
                           Column(
+                            // Profile photo and logout button
                             children: [
                               ProfilePhoto(),
                               SizedBox(height: 10,),
@@ -434,6 +439,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     )
                   ],
                 ),
+                // Bio
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
                   child: Builder(
@@ -487,7 +493,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       }
                       return Column(
-                        children: posts,
+                        children: posts, // Posts
                       );
                     } else {
                       return Center(
