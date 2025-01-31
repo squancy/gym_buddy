@@ -9,14 +9,20 @@ import 'utils/helpers.dart' as helpers;
 import 'package:flutter_moving_background/enums/animation_types.dart';
 import 'package:flutter_moving_background/flutter_moving_background.dart';
 import 'package:moye/moye.dart';
+import 'package:flutter/services.dart';
 
 Future<void> main() async {
   // Firebase init START
   await helpers.firebaseInit(test: false);
   // Firebase init END
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   runApp(const GymBuddyApp());
 }
+
+
 
 class GymBuddyApp extends StatelessWidget {
   const GymBuddyApp({super.key});
