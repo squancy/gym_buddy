@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class LoginConsts {
   static const String appBarText = 'Log in';
   static const String mainScreenText = 'Welcome back';
+  static const String forgotPasswordText = 'Forgot password';
 }
 
 // Signup page [signup_page.dart]

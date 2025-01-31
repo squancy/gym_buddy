@@ -13,24 +13,24 @@ class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
-
+ // Login page state
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
+  final TextEditingController _emailController = TextEditingController(); // Email controller
+  final TextEditingController _passwordController = TextEditingController(); // Password controller
+  final FocusNode _emailFocusNode = FocusNode(); // Email focus node
+  final FocusNode _passwordFocusNode = FocusNode(); // Password focus node
 
-  final ValueNotifier<String> _loginStatus = ValueNotifier<String>("");
+  final ValueNotifier<String> _loginStatus = ValueNotifier<String>(""); // Login status notifier (for error messages)
 
-
+ /// Login function, validates the login and redirects the user to the home page, else shows an error message
   Future<void> _login() async {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
+    final String email = _emailController.text.trim(); // Get the email from the email controller (trimmed)
+    final String password = _passwordController.text.trim(); // Get the password from the password controller (trimmed)
 
-    _loginStatus.value = '';
+    _loginStatus.value = ''; // Reset the login status
 
-    final loginValidator = CheckLogin(email, password);
-    final (bool isValid, String errorMsg, String userID) = await loginValidator.validateLogin();
+    final loginValidator = CheckLogin(email, password); // Function found in handlers.handle_login.dart
+    final (bool isValid, String errorMsg, String userID) = await loginValidator.validateLogin(); // Validate the login, function found in handlers.handle_login.dart
     if (!isValid) {
       setState(() { _loginStatus.value = errorMsg; });
       return;
@@ -52,6 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+// Dispose of the controllers and focus nodes
   @override
   void dispose() {
     _emailController.dispose();
@@ -60,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
     _passwordFocusNode.dispose();
     super.dispose();
   }
-
+ // Build the login page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +92,8 @@ class _LoginPageState extends State<LoginPage> {
                       Theme.of(context).colorScheme.primary,
                     ])),
                   ),
-                  Padding(
+                  // Email textfield
+                  Padding( 
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                     child: helpers.BlackTextfield(
                       context,
@@ -102,6 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                       isEmail: true
                     )
                   ),
+                  // Password textfield
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                     child: helpers.BlackTextfield(
@@ -115,6 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Column(
                     children: [
+                      // Login button
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: SizedBox(
@@ -125,6 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                           )
                         ),
                       ),
+                      // Forgot password button
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: TextButton(
@@ -135,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                             );
                           },
                           child: Text(
-                            'Forgot password',
+                            LoginConsts.forgotPasswordText, // 'Forgot password' text
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface
                             )
