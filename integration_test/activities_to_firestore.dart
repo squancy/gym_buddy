@@ -1,26 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_buddy/utils/helpers.dart' as helpers;
 import 'package:integration_test/integration_test.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:uuid/uuid.dart';
 
-// Import the web scraped csv files containing gyms in Hungary to the database
+// Import potential activities to the database
 
 void main() async {
-  test('Push scraped gyms to database', () async {
+  test('Push activities to database', () async {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
     await helpers.firebaseInit(test: true); // set it to false when pushing to the live database
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final gymDocRef = db.collection('gyms').doc('budapest').collection('gyms');
+    
+    // Now the list of potential activities are given here
+    // In the future they are going to be fetched from a file or other sources
+    List<String> activities = [
+      'Chest',
+      'Back',
+      'Legs',
+      'Cardio',
+      'Arms'
+    ];
+
+    final actDocRef = db.collection('activities');
     
     const int batchSize = 200; 
     WriteBatch batch = db.batch();
     int count = 0;
 
-    // First delete all documents in gyms/budapest/gyms
-    var snapshots = await gymDocRef.get();
+    // First delete all documents in activities/
+    var snapshots = await actDocRef.get();
     for (var doc in snapshots.docs) {
       count++;
       batch.delete(doc.reference);
@@ -31,29 +40,18 @@ void main() async {
     }
     await batch.commit();
 
-    final csvString = await rootBundle.loadString('assets/budapest_gyms.csv');
-    final fields = CsvToListConverter().convert(csvString);
-
-    // Add all gyms in the csv file
     final uuid = Uuid();
     count = 0;
     batch = db.batch();
 
-    for (final (i, row) in fields.indexed) {
-      if (i == 0) {
-        continue; // first row in csv is the description: do not add it
-      }
-
+    for (final el in activities) {
       count++;
-      String gymID = uuid.v4();
-      final gyms = gymDocRef.doc(gymID);
+      String actID = uuid.v4();
+      final acts = actDocRef.doc(actID);
       final data = {
-        'name': row[0],
-        'address': row[1],
-        'lat': row[3],
-        'lon': row[4]
+        'name': el,
       };
-      batch.set(gyms, data);
+      batch.set(acts, data);
 
       if (count % batchSize == 0) {
         await batch.commit();

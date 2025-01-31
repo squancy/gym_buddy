@@ -16,6 +16,13 @@ import 'package:moye/moye.dart';
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
 
+Future<List<String>> getAllDocuments(CollectionReference collection) async {
+  QuerySnapshot querySnapshot = await collection.get();
+  return querySnapshot.docs
+    .map((doc) => (doc.data() as Map<String, dynamic>?)?['name'] as String? ?? 'Unknown')
+    .toList();
+}
+
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
 
@@ -24,34 +31,23 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
-  static const List<String> _dayTypes = <String>[
-    'Chest',
-    'Back',
-    'Legs',
-    'Arms',
-    'Shoulders',
-    'Cardio',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    getAllDocuments(db.collection('gyms/budapest/gyms')).then((arg) {
+      setState(() {
+        _gyms = arg;
+      });
+    });
+    getAllDocuments(db.collection('activities')).then((arg) {
+      setState(() {
+        _dayTypes = arg;
+      });
+    });
+  }
 
-  // Only for testing
-  // TODO: web scrape gyms in Hungary
-  static const List<Map<String, dynamic>> _gyms = [
-    {
-      'name': 'The best gym in Budapest',
-      'props': {
-        'geoloc': [32.122, -21.322],
-        'opened': 2019
-      }
-    },
-    {
-      'name': 'The second best gym in Budapest',
-      'props': {
-        'geoloc': [32.122, -21.322],
-        'opened': 2019
-      }
-    }
-  ];
-
+  List<String> _dayTypes = <String>[];
+  List<String> _gyms = [];
 
   String? _dayTypeVal = '';
   String? _gymVal = '';
@@ -224,7 +220,7 @@ class _PostPageState extends State<PostPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: CustomDropdown<String>(
-                      hintText: 'What day are you having?',  
+                      hintText: 'What are you going to do?',  
                       items: _dayTypes,
                       onChanged: (p0) {
                         _dayTypeVal = p0;
@@ -244,7 +240,7 @@ class _PostPageState extends State<PostPage> {
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: CustomDropdown<String>.search(
                       hintText: 'Which gym are you going to?',  
-                      items: List<String>.from(_gyms.map((obj) => obj['name']).toList()),
+                      items: List<String>.from(_gyms),
                       onChanged: (p0) {
                         _gymVal = p0;
                       },

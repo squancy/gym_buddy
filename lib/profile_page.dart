@@ -145,6 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var _firstVisible;
   var _getPostsByUserFuture;
   var _getUserDataFuture;
+  FocusNode bioFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -271,7 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Future<void> resetToTextBio(tap) async {
               if (_toggleEditBio.showEdit.value) {
                 bio = _bioController.text;
-                _toggleEditBio.makeUneditable();
+                if (_bioController.text.isNotEmpty) _toggleEditBio.makeUneditable();
                 _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
               }
             }
@@ -317,6 +318,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTapOutside: (event) {
                   finishBioEdit();
                 },
+                focusNode: bioFocusNode,
               );
             }
 
@@ -425,7 +427,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       return TapRegion(
                         onTapOutside: (tap) async {
                           if (_bioController.text.isEmpty) {
-                            FocusScope.of(context).unfocus();      
+                            bioFocusNode.unfocus();      
                           } else {
                             await resetToTextBio(tap);
                           }
