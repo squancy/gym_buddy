@@ -151,7 +151,7 @@ class _SignupPageState extends State<SignupPage> {
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: helpers.BlackTextfield(
                           context,
-                          'Username', // "Username"
+                          SignupConsts.usernameText, // "Username"
                           _usernameController,
                           _usernameFocusNode,
                           isPassword: false,
@@ -163,7 +163,7 @@ class _SignupPageState extends State<SignupPage> {
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                         child: helpers.BlackTextfield(
                           context,
-                          SignupConsts.usernameText, // "Email"
+                          SignupConsts.emailText, // "Email"
                           _emailController,
                           _emailFocusNode,
                           isPassword: false,
