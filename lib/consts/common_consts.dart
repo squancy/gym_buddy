@@ -11,6 +11,10 @@ class LoginConsts {
 class SignupConsts {
   static const String appBarText = 'Sign up';
   static const String mainScreenText = 'Create account';
+  static const String usernameText = 'Username';
+  static const String emailText = 'Email';
+  static const String passwordText = 'Password';
+  static const String passwordConfText = 'Confirm password';
 }
 
 // Home page [main.dart]
