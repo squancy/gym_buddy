@@ -10,6 +10,7 @@ import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
 import 'utils/post_builder.dart' as post_builder;
 import 'package:image_fade/image_fade.dart';
+import 'consts/common_consts.dart' as consts;
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
@@ -141,27 +142,41 @@ class _ProfilePageState extends State<ProfilePage> {
   final _controller = TextEditingController();
   final _bioController = TextEditingController();
   var _lastVisible;
+  var _lastVisibleNum = 1;
   bool _isFirst = true;
   var _firstVisible;
   var _getPostsByUserFuture;
   var _getUserDataFuture;
+  FocusNode _bioFocusNode = FocusNode();
+  final _bottomScrollController = ScrollController();
+  List<Map<String, dynamic>> _res = [];
+  var _totalNumberOfPosts;
 
   @override
   void initState() {
-    _getUserDataFuture = _getUserData();
     super.initState();
+    _getUserDataFuture = _getUserData();
+    _bottomScrollController.addListener(() {
+      if (_bottomScrollController.position.atEdge) {
+        bool isTop = _bottomScrollController.position.pixels == 0;
+        if (!isTop && _lastVisibleNum < _totalNumberOfPosts) {
+          setState(() {
+            _getPostsByUserFuture = _getPostsByUser();
+          });
+        }
+      }
+    });
   }
 
   Future<List<Map<String, dynamic>>> _getPostsByUser() async {
     if (_lastVisible == null) return [];
     String? userID = await helpers.getUserID();
-    List<Map<String, dynamic>> res = [];
     try {
       var userPosts = await db.collection('posts')
         .where('author', isEqualTo: userID)
         .orderBy('date', descending: true)
         .startAfterDocument(_lastVisible)
-        .limit(25).get();
+        .limit(consts.ProfileConsts.PAGINATION_NUM).get();
       var userData = await db.collection('user_settings').doc(userID).get();
       var userPostDocs = userPosts.docs;
       if (_isFirst) {
@@ -169,17 +184,18 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       _isFirst = false;
       _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[userPosts.docs.length - 1];
+      _lastVisibleNum += userPosts.docs.length;
       for (final post in userPostDocs) {
         Map<String, dynamic> data = post.data();
         data['author_display_username'] = userData.data()!['display_username'];
         data['author_profile_pic_url'] = userData.data()!['profile_pic_url'];
-        res.add(data);
+        _res.add(data);
       }
     } catch (e) {
       print(e);
       return [];
     }
-    return res;
+    return _res;
   }
 
   Future<void> _setLastVisibleToFirst(userID) async {
@@ -196,6 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final userID = await helpers.getUserID();
     final users = db.collection('users');
     final settingsDocRef = db.collection('user_settings').doc(userID);
+    _totalNumberOfPosts = (await db.collection('posts').where('author', isEqualTo: userID).count().get()).count;
 
     final QuerySnapshot userWithUID = await users.where('id', isEqualTo: userID).get();
     final user = userWithUID.docs[0].data() as Map<String, dynamic>;
@@ -271,7 +288,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Future<void> resetToTextBio(tap) async {
               if (_toggleEditBio.showEdit.value) {
                 bio = _bioController.text;
-                _toggleEditBio.makeUneditable();
+                if (_bioController.text.isNotEmpty) _toggleEditBio.makeUneditable();
                 _saveNewData(bio, ProfileConsts.MAX_BIO_LEN, 'bio', isBio: true);
               }
             }
@@ -317,10 +334,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTapOutside: (event) {
                   finishBioEdit();
                 },
+                focusNode: _bioFocusNode,
               );
             }
 
             return ListView(
+              controller: _bottomScrollController,
               children: [
                 Column(
                   children: [
@@ -425,7 +444,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       return TapRegion(
                         onTapOutside: (tap) async {
                           if (_bioController.text.isEmpty) {
-                            FocusScope.of(context).unfocus();      
+                            _bioFocusNode.unfocus();      
                           } else {
                             await resetToTextBio(tap);
                           }

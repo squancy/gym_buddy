@@ -28,9 +28,11 @@ Widget buildInfoPart(field, post, context) {
       children: [
         Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary,),
         SizedBox(width: 10,),
-        Text(val, style: TextStyle(
-          fontWeight: FontWeight.bold
-        ),)
+        Flexible(child:
+          Text(val, style: TextStyle(
+            fontWeight: FontWeight.bold
+          ),)
+        )
       ],
     )
     ) : Container();

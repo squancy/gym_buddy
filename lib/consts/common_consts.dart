@@ -36,9 +36,10 @@ class ValidateSignupConsts {
 class ProfileConsts {
   static const int MAX_BIO_LEN = 200;
   static const String defaultProfilePicPath = 'assets/default_profile_pic.png';
+  static const int PAGINATION_NUM = 24;
 }
 
 class GlobalConsts {
   static const spinkit = CircularProgressIndicator.adaptive();
-  static const bool TEST = false;
+  static const bool TEST = true;
 }

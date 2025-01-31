@@ -20,5 +20,5 @@ void main() {
     );
 
     expect(field, findsOneWidget);
-});
+  });
 }
