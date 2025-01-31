@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moye/moye.dart';
 import 'consts/common_consts.dart';
 import 'forgot_password.dart';
 import 'handlers/handle_login.dart';
@@ -13,7 +12,8 @@ class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
- // Login page state
+
+// Login page state
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController(); // Email controller
   final TextEditingController _passwordController = TextEditingController(); // Password controller
@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final ValueNotifier<String> _loginStatus = ValueNotifier<String>(""); // Login status notifier (for error messages)
 
- /// Login function, validates the login and redirects the user to the home page, else shows an error message
+  /// Login function, validates the login and redirects the user to the home page, else shows an error message
   Future<void> _login() async {
     final String email = _emailController.text.trim(); // Get the email from the email controller (trimmed)
     final String password = _passwordController.text.trim(); // Get the password from the password controller (trimmed)
@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-// Dispose of the controllers and focus nodes
+  // Dispose controllers and focus nodes
   @override
   void dispose() {
     _emailController.dispose();
@@ -61,7 +61,8 @@ class _LoginPageState extends State<LoginPage> {
     _passwordFocusNode.dispose();
     super.dispose();
   }
- // Build the login page
+
+  // Build the login page
   @override
   Widget build(BuildContext context) {
     return Scaffold(

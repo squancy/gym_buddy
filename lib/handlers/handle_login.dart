@@ -11,11 +11,12 @@ class CheckLogin {
   final String _email;
   final String _password;
 
-/// Get the user whose email matches the provided email
+  /// Get the user whose email matches the provided email
   Future<QuerySnapshot> _getUserWithEmail(users) async {
     return await users.where('email', isEqualTo: _email).get();
   }
-/// Verify if the provided password matches the stored hash
+
+  /// Verify if the provided password matches the stored hash
   Future<bool> _isPasswordValid(user) async {
     String passwordDB = user['password'];
     var bcrypt = DBCrypt();
@@ -23,7 +24,8 @@ class CheckLogin {
     // Verify if the provided password matches the stored hash
     return bcrypt.checkpw(_password, passwordDB);
   }
-/// Validate the login credentials of the user and return the result
+
+  /// Validate the login credentials of the user and return the result
   Future<(bool success, String errorMsg, String userID)> validateLogin() async {
     // Fetch user with the given email, if exists
     final FirebaseFirestore db = FirebaseFirestore.instance;

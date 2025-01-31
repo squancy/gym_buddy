@@ -9,31 +9,24 @@ import 'utils/helpers.dart' as helpers;
 import 'package:flutter_moving_background/enums/animation_types.dart';
 import 'package:flutter_moving_background/flutter_moving_background.dart';
 import 'package:moye/moye.dart';
-import 'package:flutter/services.dart';
 
 Future<void> main() async {
   // Firebase init START
   await helpers.firebaseInit(test: false);
   // Firebase init END
-  SystemChrome.setPreferredOrientations([ // Lock the app to portrait mode
-    DeviceOrientation.portraitUp,
-  ]);
 
   runApp(const GymBuddyApp());
 }
-
-
 
 class GymBuddyApp extends StatelessWidget {
   const GymBuddyApp({super.key});
   static const ColorScheme gymBuddyColorScheme = GlobalThemeData.defaultColorScheme;
 
-// Main app widget
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: HomeConsts.appTitle, // Gym buddy app  
+      title: 'Gym Buddy App',
       theme: ThemeData(
         // fontFamily: 'Rethink Sans',
         brightness: Brightness.dark,
@@ -90,7 +83,7 @@ class MainButton extends StatelessWidget {
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
- /// Check if the user is logged in
+
   Future<bool> _loggedIn() async {
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
     bool loggedIn = true;
@@ -117,7 +110,6 @@ class WelcomePage extends StatelessWidget {
           );
         } else {
           return Scaffold(
-            // 4 moving circles on the screen
             body: MovingBackground(
               animationType: AnimationType.translation,
               backgroundColor: Colors.black,
@@ -132,21 +124,20 @@ class WelcomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [Text(
-                      HomeConsts.appTitle, // Gym buddy app
+                      HomeConsts.appTitle,
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.bold,
                         color: Colors.white
                       )
                     ),
-                    // Log in button
                     const SizedBox(height: 60),
                     MainButton(
-                      displayText: HomeConsts.loginButtonTitle, // Log in
+                      displayText: HomeConsts.loginButtonTitle,
                       onPressedFunc: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const LoginPage()), // Navitage to login page
+                          MaterialPageRoute(builder: (context) => const LoginPage()),
                         );
                       },
                       fontSize: 18,
@@ -154,14 +145,13 @@ class WelcomePage extends StatelessWidget {
                       color: Colors.white24,
                       blurRadius: 20
                     ),
-                    // Sign up button
                     const SizedBox(height: 30),
                     MainButton(
-                      displayText: HomeConsts.signupButtonTitle, // Sign up
+                      displayText: HomeConsts.signupButtonTitle,
                       onPressedFunc: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const SignupPage()), // Navigate to signup page
+                          MaterialPageRoute(builder: (context) => const SignupPage()),
                         );
                       },
                       fontSize: 18,

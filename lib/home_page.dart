@@ -36,7 +36,8 @@ class _HomePageContentState extends State<HomePageContent> {
 
     return {};
   }
-// Build the home page content
+
+  // Build the home page content
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +102,7 @@ class _HomePageState extends State<HomePage> {
     });
   } 
 
-// List of tab items
+  // List of tab items
   final List<TabItem> items = [
     TabItem(
       icon: Icons.home,

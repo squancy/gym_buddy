@@ -36,7 +36,8 @@ class _PostPageState extends State<PostPage> {
   @override
   void initState() {
     super.initState();
-    getAllDocuments(db.collection('gyms/budapest/gyms')).then((arg) { // Get all gyms in Budapest //TODO - Have more gyms outside Budapest
+    // TODO - Have more gyms outside Budapest
+    getAllDocuments(db.collection('gyms/budapest/gyms')).then((arg) { // Get all gyms in Budapest 
       if (mounted) {
         setState(() {
           _gyms = arg;
@@ -66,7 +67,7 @@ class _PostPageState extends State<PostPage> {
   DateTime? _datetimeVal;
   double? _progress = null;
 
-/// Select images from source (camera or gallery)
+  /// Select images from source (camera or gallery)
   void _selectFromSource(ImageSource sourceType) async {
     final pickedFiles = await _picker.pickMultiImage(limit: 5);
     if (pickedFiles.isNotEmpty) {
@@ -77,7 +78,7 @@ class _PostPageState extends State<PostPage> {
     }
   }
 
-/// Create a new post
+  /// Create a new post
   Future<void> createNewPost(
     List<File> images,
     String postText,
@@ -103,7 +104,6 @@ class _PostPageState extends State<PostPage> {
     List<String> downloadURLs = [];
     List<String> filenames = [];
 
-/// Push to db the post
     Future<void> pushToDB() async {
       // Push to db
       final postsDocRef = db.collection('posts').doc(postID);
@@ -166,7 +166,7 @@ class _PostPageState extends State<PostPage> {
       pushToDB();
     }
   }
- // Build the post page
+  // Build the post page
   @override
   Widget build(BuildContext context) {
     final uploadPhoto = PhotoUploadPopup(context, _selectFromSource);

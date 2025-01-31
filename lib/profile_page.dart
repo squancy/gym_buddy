@@ -45,7 +45,8 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
   var _image = File(ProfileConsts.defaultProfilePicPath);
   final _picker = ImagePicker();
   bool _showFile = false;
-/// Upload the profile picture to Firebase Storage
+
+  /// Upload the profile picture to Firebase Storage
   Future<void> _uploadPic(File file, String? userID) async {
     var (String downloadURL, String filename) = await UploadImageFirestorage(storageRef).uploadImage(file, ProfileConsts.profilePicSize, "profile_pics/$userID"); // Upload the image to Firebase Storage, picsize is default 200px
     final settingsDocRef = db.collection('user_settings').doc(userID);
@@ -58,7 +59,8 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
       // ...
     }
   }
-/// Selecting an image from the gallery or camera
+
+  /// Select an image from the gallery or camera
   void _selectFromSource(ImageSource sourceType) async {
     final pickedFile = await _picker.pickImage(source: sourceType);
     final userID = await helpers.getUserID();
@@ -73,7 +75,8 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
       }
     });
   }
-/// Get the profile picture URL
+
+  /// Get the profile picture URL
   Future<String> _getProfilePicURL() async {
     final userID = await helpers.getUserID();
     final settingsDocRef = db.collection('user_settings').doc(userID);
@@ -81,7 +84,8 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
     final userSettings = usettings.data() as Map<String, dynamic>;
     return userSettings['profile_pic_url'];
   }
-/// Get the profile picture file type(= url if not empty) and path (default if url is empty)
+
+  /// Get the profile picture file type(= url if not empty) and path (default if url is empty)
   Future<Map<String, String>> _getProfilePicFile() async {
     final profilePicURL = await _getProfilePicURL();
     if (profilePicURL.isEmpty) {
@@ -90,7 +94,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
     return {'type': 'url', 'path': profilePicURL};
   }
 
-// Build the profile photo widget
+  // Build the profile photo widget
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, String>>(
@@ -168,7 +172,8 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
   }
-/// Get the posts by the user from db
+
+  /// Get the posts by the user from db
   Future<List<Map<String, dynamic>>> _getPostsByUser() async {
     if (_lastVisible == null) return [];
     String? userID = await helpers.getUserID();
@@ -199,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return _res;
   }
 
-/// Set the last visible post to the first post
+  /// Set the last visible post to the first post
   Future<void> _setLastVisibleToFirst(userID) async {
     var userPosts = await db.collection('posts')
       .where('author', isEqualTo: userID)
@@ -208,7 +213,8 @@ class _ProfilePageState extends State<ProfilePage> {
     _lastVisible = userPosts.docs.isEmpty ? null : userPosts.docs[0];
     _firstVisible = _lastVisible;
   }
- /// Get the user data from db
+
+  /// Get the user data from db
   Future<Map<String, dynamic>> _getUserData() async {
     // First get the ID of the user currently logged in 
     final userID = await helpers.getUserID();
@@ -233,7 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
     };
   }
 
-/// Save the new data to the db
+  /// Save the new data to the db
   Future<void> _saveNewData(String newData, int maxLen, String fieldName, {required bool isBio}) async {
     if (Characters(newData).length > maxLen || (Characters(newData).isEmpty && !isBio)) {
       return;
@@ -248,14 +254,16 @@ class _ProfilePageState extends State<ProfilePage> {
       // ...
     }
   }
-// Dispose the controllers
+
+  // Dispose the controllers
   @override
   void dispose() {
     _controller.dispose();
     _bioController.dispose();
     super.dispose();
   } 
-// Build the profile page
+
+  // Build the profile page
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'consts/common_consts.dart';
 import 'handlers/handle_signup.dart';
 import 'home_page.dart';
-import 'package:moye/moye.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moye/widgets/gradient_overlay.dart';
 import 'utils/helpers.dart' as helpers;
