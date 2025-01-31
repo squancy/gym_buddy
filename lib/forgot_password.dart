@@ -14,6 +14,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController(); // Email controller
   final FocusNode _emailFocusNode = FocusNode(); // Email focus node
 
+// Send the password to the user's email function
   Future<void> _sendPassword() async {
     // TODO: implement password sending feature once we have a server & email address
     final String email = _emailController.text;
@@ -33,9 +34,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(2.0),
+        padding: const EdgeInsets.all(20.0), // Padding around the page content (20px)
         child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
+          builder: (context, constraints) => SingleChildScrollView( // Scrollable view for the page content (if it overflows)
             child: Container(
               constraints: BoxConstraints(
                 minHeight: constraints.maxHeight
@@ -46,7 +47,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                     child: Text(
-                      ForgotPasswordConsts.mainScreenText,
+                      ForgotPasswordConsts.mainScreenText, // 'New password' text
                       style: TextStyle(
                         fontSize: 34,
                         color: Theme.of(context).colorScheme.primary,
@@ -61,13 +62,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                     child: Text(
-                      ForgotPasswordConsts.infoText,
+                      ForgotPasswordConsts.infoText, // 'We will send a temporary password to your email' text
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                    child: helpers.BlackTextfield(
+                    child: helpers.BlackTextfield( // Email textfield
                       context,
                       'Email',
                       _emailController,
@@ -80,7 +81,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
                     child: SizedBox(
                       height: 45,
-                      child: helpers.ProgressBtn(
+                      child: helpers.ProgressBtn( // Send password button
                         onPressedFn: _sendPassword,
                         child: Text('Send password')
                       )
