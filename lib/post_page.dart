@@ -35,14 +35,18 @@ class _PostPageState extends State<PostPage> {
   void initState() {
     super.initState();
     getAllDocuments(db.collection('gyms/budapest/gyms')).then((arg) {
-      setState(() {
-        _gyms = arg;
-      });
+      if (mounted) {
+        setState(() {
+          _gyms = arg;
+        });
+      }
     });
     getAllDocuments(db.collection('activities')).then((arg) {
-      setState(() {
-        _dayTypes = arg;
-      });
+      if (mounted) {
+        setState(() {
+          _dayTypes = arg;
+        });
+      }
     });
   }
 

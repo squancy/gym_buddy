@@ -10,6 +10,7 @@ import 'utils/upload_image_firestorage.dart';
 import 'utils/helpers.dart' as helpers;
 import 'utils/post_builder.dart' as post_builder;
 import 'package:image_fade/image_fade.dart';
+import 'consts/common_consts.dart' as consts;
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final storageRef = FirebaseStorage.instance.ref();
@@ -175,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
         .where('author', isEqualTo: userID)
         .orderBy('date', descending: true)
         .startAfterDocument(_lastVisible)
-        .limit(25).get();
+        .limit(consts.ProfileConsts.PAGINATION_NUM).get();
       var userData = await db.collection('user_settings').doc(userID).get();
       var userPostDocs = userPosts.docs;
       if (_isFirst) {
