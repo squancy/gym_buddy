@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 
+// Get the Firestore instance
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
 class HomePage extends StatefulWidget {
@@ -23,11 +24,11 @@ class HomePageContent extends StatefulWidget {
 class _HomePageContentState extends State<HomePageContent> {
   Future<Object> fetchPosts() async {
     // First get the geoloc of the user (if possible) and update it in db
-    Position? geoloc = await helpers.getGeolocation();
-    String? userID = await helpers.getUserID();
+    Position? geoloc = await helpers.getGeolocation(); // Get the geolocation of the user
+    String? userID = await helpers.getUserID(); // Get the userID
     if (geoloc != null) {
       try {
-        db.collection('users').doc(userID).update({'geoloc': geoloc});
+        db.collection('users').doc(userID).update({'geoloc': geoloc}); // Update the user's geolocation and userID in the db
       } catch (e) {
         // print(e);
       }
@@ -35,7 +36,7 @@ class _HomePageContentState extends State<HomePageContent> {
 
     return {};
   }
-
+// Build the home page content
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +50,8 @@ class _HomePageContentState extends State<HomePageContent> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: SearchAnchor(
+            // Search bar
+            child: SearchAnchor( 
               builder: (BuildContext context, SearchController controller) {
                 return SearchBar(
                   controller: controller,
@@ -62,7 +64,7 @@ class _HomePageContentState extends State<HomePageContent> {
                   onTapOutside: (event) {
                     FocusScope.of(context).unfocus();      
                   },
-                  hintText: 'Search',
+                  hintText: 'Search', 
                   hintStyle: WidgetStatePropertyAll(
                     TextStyle(
                       color: Theme.of(context).colorScheme.secondary
@@ -76,7 +78,7 @@ class _HomePageContentState extends State<HomePageContent> {
             ),
           ),
           Expanded(
-            child: SingleChildScrollView(
+            child: SingleChildScrollView( // Scrollable view for the page content (if it overflows)
               child: Column(
                 children: [
                 ],
@@ -90,15 +92,16 @@ class _HomePageContentState extends State<HomePageContent> {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Index of the selected tab
 
   void _onItemTapped(int index) {
     if (_selectedIndex == index) return;
     setState(() {
-      _selectedIndex = index;
+      _selectedIndex = index; // Set the selected index to the index of the tab, switch to the corresponding page
     });
   } 
 
+// List of tab items
   final List<TabItem> items = [
     TabItem(
       icon: Icons.home,
@@ -124,13 +127,13 @@ class _HomePageState extends State<HomePage> {
       key: Key('homepage'),
       extendBody: true,
       body: Center(
-        child: [HomePageContent(), PostPage(), Container(), ProfilePage()][_selectedIndex],
+        child: [HomePageContent(), PostPage(), Container(), ProfilePage()][_selectedIndex], // Display the corresponding page based on the selected index
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(30),
+        padding: const EdgeInsets.all(30), // Padding around the bottom bar
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(30))
+            borderRadius: BorderRadius.all(Radius.circular(30)) // Rounded corners for the bottom bar
           ),
           clipBehavior: Clip.hardEdge,
           child: BottomBarFloating(
@@ -140,7 +143,7 @@ class _HomePageState extends State<HomePage> {
             colorSelected: Theme.of(context).colorScheme.tertiary,
             indexSelected: _selectedIndex,
             onTap: _onItemTapped,
-            duration: Duration(milliseconds: 200),
+            duration: Duration(milliseconds: 200), // Duration of the animation
             titleStyle: TextStyle(
               letterSpacing: 0,
             ),
